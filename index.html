@@ -33,7 +33,7 @@ nav{display:flex;gap:8px;margin-left:auto;overflow-x:auto;white-space:nowrap;pad
 nav a{color:var(--ink);font-weight:600;font-size:14px;padding:8px 14px;border-radius:10px;transition:background .2s, color .2s;cursor:pointer}
 nav a:hover{background:var(--pink-soft);text-decoration:none;color:var(--pink)}
 nav a.active{background:var(--pink);color:#fff}
-.btn{background:var(--green);color:#fff;font-weight:600;padding:9px 18px;border-radius:999px;font-size:15px;white-space:nowrap}
+.btn{background:var(--green);color:#fff;font-weight:600;padding:9px 18px;border-radius:999px;font-size:15px;white-space:nowrap;border:none;cursor:pointer;font-family:inherit;}
 .btn:hover{text-decoration:none;filter:brightness(1.08)}
 
 .heroband{background:linear-gradient(135deg,#d3277f 0%,#a3195f 100%);color:#fff;position:relative;overflow:hidden}
@@ -210,6 +210,15 @@ h1,h2,.logo,.chip{font-family:Sora,Inter,system-ui,sans-serif}
 .hubsw{display:flex;gap:2px;background:var(--pink-soft);border-radius:999px;padding:3px}
 .hubsw a{font-weight:700;font-size:13px;padding:5px 12px;border-radius:999px;color:var(--pink)}
 .hubsw a.on{background:var(--pink);color:#fff}.hubsw a:hover{text-decoration:none}
+
+/* Rozbaľovacie menu Dokumenty */
+.doc-dropdown { position: relative; display: inline-block; }
+@media(min-width:900px){ .bar .doc-dropdown { margin-left: auto; } }
+.dropdown-content { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: var(--card); min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 1px solid var(--line); border-radius: 12px; z-index: 100; overflow: hidden; }
+.dropdown-content.show { display: block; animation: fadeIn 0.15s ease-in-out; }
+.dropdown-content a { color: var(--ink); padding: 12px 18px; text-decoration: none; display: block; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.dropdown-content a:last-child { border-bottom: none; }
+.dropdown-content a:hover { background: var(--pink-soft); color: var(--pink); }
 </style>
 </head>
 <body>
@@ -229,7 +238,13 @@ h1,h2,.logo,.chip{font-family:Sora,Inter,system-ui,sans-serif}
       <a onclick="switchTab('statusy')" id="nav-statusy">Statusy</a>
       <a onclick="switchTab('majetok')" id="nav-majetok">Majetok</a>
     </nav>
-    <a class="btn" href="https://srovnejto.daktela.com/dashboard/" target="_blank" rel="noopener">Dashboard</a>
+    <div class="doc-dropdown">
+      <button type="button" class="btn" onclick="toggleDocMenu(event)">Dokumenty ▾</button>
+      <div id="docMenu" class="dropdown-content">
+        <a onclick="showOperator()">Operátor</a>
+        <a onclick="loginVedenie()">Vedenie</a>
+      </div>
+    </div>
     <button type="button" class="tl-btn" id="lang-btn" data-notr style="margin-left:8px">Preložiť do češtiny</button>
     <button type="button" class="theme-btn" id="theme-btn" aria-label="Prepnúť svetlý/tmavý režim" title="Svetlý / tmavý režim">🌙</button>
   </div>
@@ -246,7 +261,6 @@ h1,h2,.logo,.chip{font-family:Sora,Inter,system-ui,sans-serif}
 <button type="button" id="side-statusy" onclick="switchTab('statusy')"><span class="si">🔄</span>Statusy</button>
 <button type="button" id="side-majetok" onclick="switchTab('majetok')"><span class="si">🏠</span>Majetok</button>
 </aside>
-
 
 <main>
   <!-- HERO BANNER -->
@@ -270,9 +284,6 @@ h1,h2,.logo,.chip{font-family:Sora,Inter,system-ui,sans-serif}
         <a href="https://www.netfinancie.com/kerberos/" target="_blank" rel="noopener noreferrer" data-s="kerberos netfinancie office nf klik"><span class="ic">📊</span><span class="tx">Kalkulačka NetFinancie</span></a>
         <a href="https://sp.nfhub.sk/poistenie-domov-domacnosti-porovnanie-kalkulacka/" target="_blank" rel="noopener" data-s="kalkulačka superpoistenie"><span class="ic">🧮</span><span class="tx">Kalkulačka SuperPoistenie<small>Poistenie domu, bytu a domácnosti</small></span></a>
         <a href="https://nf.klik.sk/poistenie-domov-domacnosti-porovnanie-kalkulacka/" target="_blank" rel="noopener noreferrer" data-s="kalkulačka klik epojisteni poistenie domu bytu domácnosti"><span class="ic">🧮</span><span class="tx">Kalkulačka KLIK<small>Poistenie domu, bytu a domácnosti</small></span></a>
-        <!-- SKRYTÉ: Prihlásenie KLIK (odkomentuj pre návrat)
-        <a href="https://nf.klik.sk/kerberos/" target="_blank" rel="noopener noreferrer" data-s="klik prihlásenie kerberos login nf"><span class="ic">🔑</span><span class="tx">Prihlásenie KLIK<small>Najprv sa prihlás, potom kalkulačka</small></span></a>
-        -->
         <a href="https://zbgis.skgeodesy.sk/mapka/sk/kataster?pos=47.928408,18.207431,15" target="_blank" rel="noopener" data-s="kataster nehnuteľnosti"><span class="ic">🗺</span><span class="tx">Kataster nehnuteľností<small>Mapa ZBGIS</small></span></a>
         <a href="https://www.netfinancie.com/vypoved-poistnej-zmluvy/poistenie-nehnutelnosti/" target="_blank" rel="noopener" data-s="výpoveď vzor poistenie nehnuteľnosti formulár netfinancie"><span class="ic">📄</span><span class="tx">Výpoveď poistenia nehnuteľnosti<small>Vzor – NetFinancie</small></span></a>
       </div>
@@ -321,7 +332,6 @@ h1,h2,.logo,.chip{font-family:Sora,Inter,system-ui,sans-serif}
         <div class="calc-field"><label for="an-date">Výročie zmluvy klienta</label><input type="date" id="an-date"></div>
         <div id="an-out"></div>
       </div>
-
 
       <div class="tbl-wrap" style="overflow-x:auto; margin-bottom: 28px;">
         <p class="grp">Podateľne a e-maily poisťovní (výpovedná lehota je štandardne 6 týždňov)</p>
@@ -491,26 +501,14 @@ h1,h2,.logo,.chip{font-family:Sora,Inter,system-ui,sans-serif}
       <h2>Šablóny správ</h2>
       <p class="sub">Klikni na Kopírovať a vlož text do e-mailu. Nevpisuj sem údaje zákazníkov.</p>
       <div class="tpl-list">
-<div class="tpl" data-subject="Poistenie nehnuteľnosti – kontakt" data-s="šablóna správa e-mail vizitka: kontakt na mňa na konci hovoru alebo v e-maile dobrý deň,
-
-ďakujem za hovor. v prípade akýchkoľvek otázok ma môžete kontaktovať na tomto e-maile.
-
-s pozdravom">
+<div class="tpl" data-subject="Poistenie nehnuteľnosti – kontakt" data-s="šablóna správa e-mail vizitka: kontakt na mňa na konci hovoru alebo v e-maile dobrý deň, ďakujem za hovor. v prípade akýchkoľvek otázok ma môžete kontaktovať na tomto e-maile. s pozdravom">
 <div class="tpl-h"><div><h3>Vizitka: kontakt na mňa</h3><small>Na konci hovoru alebo v e-maile</small></div><div class="tpl-act"><a class="tpl-web" href="#" target="_blank" rel="noopener" title="Otvorí nový e-mail v Outlooku s vyplneným predmetom a textom">✉️ Outlook</a><button type="button" class="tpl-copy" data-l="Kopírovať">Kopírovať</button></div></div>
 <div class="tpl-text">Dobrý deň,
 
 ďakujem za hovor. V prípade akýchkoľvek otázok ma môžete kontaktovať na tomto e-maile.
 
 S pozdravom</div></div>
-<div class="tpl" data-subject="Vinkulácia poistenia – potrebné doklady" data-s="šablóna správa e-mail vinkulácia: čo mi pošlite keď klient chce poistenie vinkulovať v prospech banky dobrý deň,
-
-k vinkulácii poistenia v prospech vašej banky prosím zašlite na tento e-mail:
-1. vinkulačné tlačivá od vašej banky (ak ich banka vyžaduje),
-2. potvrdenie o zaplatení poistného (doklad z bankovníctva).
-
-po ich doručení vinkuláciu potvrdíme u poisťovne a potvrdenie zašleme vám, prípadne priamo banke.
-
-s pozdravom">
+<div class="tpl" data-subject="Vinkulácia poistenia – potrebné doklady" data-s="šablóna správa e-mail vinkulácia: čo mi pošlite keď klient chce poistenie vinkulovať v prospech banky dobrý deň, k vinkulácii poistenia v prospech vašej banky prosím zašlite na tento e-mail: 1. vinkulačné tlačivá od vašej banky (ak ich banka vyžaduje), 2. potvrdenie o zaplatení poistného (doklad z bankovníctva). po ich doručení vinkuláciu potvrdíme u poisťovne a potvrdenie zašleme vám, prípadne priamo banke. s pozdravom">
 <div class="tpl-h"><div><h3>Vinkulácia: čo mi pošlite</h3><small>Keď klient chce poistenie vinkulovať v prospech banky</small></div><div class="tpl-act"><a class="tpl-web" href="#" target="_blank" rel="noopener" title="Otvorí nový e-mail v Outlooku s vyplneným predmetom a textom">✉️ Outlook</a><button type="button" class="tpl-copy" data-l="Kopírovať">Kopírovať</button></div></div>
 <div class="tpl-text">Dobrý deň,
 
@@ -521,14 +519,7 @@ k vinkulácii poistenia v prospech vašej banky prosím zašlite na tento e-mail
 Po ich doručení vinkuláciu potvrdíme u poisťovne a potvrdenie zašleme vám, prípadne priamo banke.
 
 S pozdravom</div></div>
-<div class="tpl" data-subject="Výpoveď pôvodného poistenia" data-s="šablóna správa e-mail výpoveď pôvodného poistenia keď klient mení poisťovňu a treba vypovedať staré poistenie dobrý deň,
-
-k výpovedi pôvodného poistenia: výpoveď musí byť poisťovni doručená najneskôr 6 týždňov pred výročím zmluvy.
-
-vzor výpovede nájdete tu:
-https://www.netfinancie.com/vypoved-poistnej-zmluvy/poistenie-nehnutelnosti/
-
-s pozdravom">
+<div class="tpl" data-subject="Výpoveď pôvodného poistenia" data-s="šablóna správa e-mail výpoveď pôvodného poistenia keď klient mení poisťovňu a treba vypovedať staré poistenie dobrý deň, k výpovedi pôvodného poistenia: výpoveď musí byť poisťovni doručená najneskôr 6 týždňov pred výročím zmluvy. vzor výpovede nájdete tu: https://www.netfinancie.com/vypoved-poistnej-zmluvy/poistenie-nehnutelnosti/ s pozdravom">
 <div class="tpl-h"><div><h3>Výpoveď pôvodného poistenia</h3><small>Keď klient mení poisťovňu a treba vypovedať staré poistenie</small></div><div class="tpl-act"><a class="tpl-web" href="#" target="_blank" rel="noopener" title="Otvorí nový e-mail v Outlooku s vyplneným predmetom a textom">✉ Outlook</a><button type="button" class="tpl-copy" data-l="Kopírovať">Kopírovať</button></div></div>
 <div class="tpl-text">Dobrý deň,
 
@@ -570,6 +561,18 @@ S pozdravom</div></div>
         <div class="card" data-s="domácnosť vybavenie nábytok elektro"><h3>Poistenie domácnosti</h3><p>Kryje vybavenie vnútri: nábytok, elektro, oblečenie, športové veci.</p></div>
         <div class="card" data-s="zodpovednosť škoda cudzí sused"><h3>Poistenie zodpovednosti</h3><p>Platí, keď klient neúmyselne spôsobí škodu niekomu inému, napríklad zatečie sused.</p></div>
         <div class="card" data-s="podpoistenie suma hodnota"><h3>Podpoistenie</h3><p>Dom je poistený na nižšiu sumu, než je jeho reálna hodnota. Pri škode potom klient nedostane plnú náhradu.</p></div>
+      </div>
+    </div>
+
+    <!-- TAB 8: VEDENIE -->
+    <div id="tab-vedenie" class="tab-page">
+      <h2>Sekcia Vedenie</h2>
+      <p class="sub">Interné dokumenty a informácie prístupné len pre vedenie spoločnosti.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Dôležité dokumenty</h3>
+          <p>Tu si môžete vložiť interné reporty, tabuľky alebo iné dáta...</p>
+        </div>
       </div>
     </div>
 
@@ -864,6 +867,49 @@ function tr(t){var m=t.match(/^(\s*)([\s\S]*?)(\s*)$/),c=m[2];if(!c)return t;
   obs=new MutationObserver(function(ms){if(busy)return;obs.disconnect();ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType===3){if(n.nodeValue.trim()&&!skip(n)){var v=tr(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v;}}else if(n.nodeType===1)run(n);});});obs.observe(document.body,{childList:true,subtree:true});});
   obs.observe(document.body,{childList:true,subtree:true});
 })();
+</script>
+<script>
+// Menu Dokumenty a prihlasovanie
+function toggleDocMenu(e) {
+  e.stopPropagation();
+  document.getElementById('docMenu').classList.toggle('show');
+}
+window.addEventListener('click', function(e) {
+  if (!e.target.matches('.doc-dropdown .btn')) {
+    var menu = document.getElementById('docMenu');
+    if (menu && menu.classList.contains('show')) {
+      menu.classList.remove('show');
+    }
+  }
+});
+
+const vedenieAuth = {
+  "jana.piskackova@klik.cz": "Klik2026",
+  "oliver.boskovic@klik.cz": "Klik2026",
+  "jaroslav.opalecky@klik.cz": "Klik2026"
+};
+
+function showOperator() {
+  switchTab('odkazy');
+}
+
+function loginVedenie() {
+  let email = prompt("Prihlásenie do sekcie Vedenie\nZadaj svoj prihlasovací e-mail:");
+  if (!email) return;
+  email = email.trim().toLowerCase();
+
+  if (vedenieAuth[email]) {
+    let password = prompt("Zadaj heslo:");
+    if (password === vedenieAuth[email]) {
+      alert("Prihlásenie bolo úspešné.");
+      switchTab('vedenie');
+    } else {
+      alert("Nesprávne heslo!");
+    }
+  } else {
+    alert("Prístup zamietnutý. Neplatný e-mail.");
+  }
+}
 </script>
 </body>
 </html>
