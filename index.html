@@ -920,15 +920,13 @@ function tr(t){var m=t.match(/^(\s*)([\s\S]*?)(\s*)$/),c=m[2];if(!c)return t;
   obs.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// --- DOKUMENTY (ukladanie v prehliadači, IndexedDB) ---
-const vedenieAuth = {
-  "jana.piskackova@klik.cz": "Klik2026",
-  "oliver.boskovic@klik.cz": "Klik2026",
-  "jaroslav.opalecky@klik.cz": "Klik2026"
-};
+// --- DOKUMENTY (Supabase: spoločné úložisko + prihlásenie vedenia) ---
+const SUPABASE_URL = 'https://nattqgydzbteovqqhesh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_qweFe9nw3Mh-JbfBUHBy7w_KkKP-rmE';
 
-let db = null, docsCache = [];
+let sb = null, docSession = null, docsCache = [];
 const docById = {};
 
 function esc(s) {
@@ -936,35 +934,52 @@ function esc(s) {
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
   });
 }
+function fmtSize(n) {
+  if (!n) return '';
+  return n >= 1048576 ? (n / 1048576).toFixed(2) + ' MB' : (n / 1024).toFixed(1) + ' KB';
+}
 function docIcon(d) {
   if (d.kind === 'link') return '🔗';
-  var f = (d.fileName || '').toLowerCase();
+  var f = (d.file_name || '').toLowerCase();
   if (/\.(xlsx?|csv)$/.test(f)) return '📊';
   if (/\.pdf$/.test(f)) return '📕';
   if (/\.docx?$/.test(f)) return '📝';
   return '📄';
 }
 function isViewable(d) {
-  var m = (d.mime || '').toLowerCase(), f = (d.fileName || '').toLowerCase();
+  var m = (d.mime || '').toLowerCase(), f = (d.file_name || '').toLowerCase();
   return m === 'application/pdf' || m.indexOf('image/') === 0 || m === 'text/plain' || /\.(pdf|png|jpe?g|gif|webp|txt)$/.test(f);
 }
+function docsMsg(t) {
+  var el = document.getElementById('doc-msg');
+  if (!el) return;
+  el.textContent = t || '';
+  el.classList.toggle('hide', !t);
+}
 
-const dbReq = indexedDB.open("KlikHubDocsDB", 1);
-dbReq.onupgradeneeded = function(e) {
-  var d = e.target.result;
-  if (!d.objectStoreNames.contains("docs")) d.createObjectStore("docs", { keyPath: "id" });
-};
-dbReq.onsuccess = function(e) { db = e.target.result; loadDocs(); };
+function docsInit() {
+  if (!window.supabase || !SUPABASE_KEY) {
+    docsMsg('Dokumenty ešte nie sú pripojené: do kódu treba vložiť kľúč zo Supabase (SUPABASE_KEY).');
+    return;
+  }
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  sb.auth.getSession().then(function(r) {
+    docSession = r.data.session;
+    authUI();
+    loadDocs();
+  });
+  sb.auth.onAuthStateChange(function(_e, s) {
+    docSession = s;
+    setTimeout(function() { authUI(); loadDocs(); }, 0);
+  });
+}
 
-function loggedUser() { return localStorage.getItem('klik_vedenie_user'); }
-
-function checkVedenieSession() {
-  var u = loggedUser();
-  document.getElementById('vedenie-login-box').classList.toggle('hide', !!u);
-  document.getElementById('vedenie-upload-box').classList.toggle('hide', !u);
-  document.getElementById('btn-doc-logout').classList.toggle('hide', !u);
-  if (u) document.getElementById('vedenie-user-badge').textContent = 'Prihlásený: ' + u;
-  renderDocs();
+function authUI() {
+  var logged = !!docSession;
+  document.getElementById('vedenie-login-box').classList.toggle('hide', logged);
+  document.getElementById('vedenie-upload-box').classList.toggle('hide', !logged);
+  document.getElementById('btn-doc-logout').classList.toggle('hide', !logged);
+  if (logged) document.getElementById('vedenie-user-badge').textContent = 'Prihlásený: ' + docSession.user.email;
 }
 
 function switchDocSubtab(type) {
@@ -973,23 +988,26 @@ function switchDocSubtab(type) {
   document.getElementById('btn-sub-vedenie').classList.toggle('active-subtab', !op);
   document.getElementById('doc-subtab-operator').classList.toggle('hide', !op);
   document.getElementById('doc-subtab-vedenie').classList.toggle('hide', op);
-  checkVedenieSession();
+  loadDocs();
 }
 
 function processVedenieLogin() {
-  var email = document.getElementById('v-email').value.trim().toLowerCase();
+  if (!sb) { alert('Dokumenty nie sú pripojené.'); return; }
+  var email = document.getElementById('v-email').value.trim();
   var pass = document.getElementById('v-pass').value;
-  if (vedenieAuth[email] && vedenieAuth[email] === pass) {
-    localStorage.setItem('klik_vedenie_user', email);
-    document.getElementById('v-pass').value = '';
-    checkVedenieSession();
-  } else {
-    alert('Nesprávny e-mail alebo heslo!');
-  }
+  sb.auth.signInWithPassword({ email: email, password: pass }).then(function(r) {
+    if (r.error) alert('Nesprávny e-mail alebo heslo.');
+    else document.getElementById('v-pass').value = '';
+  });
 }
 function logoutVedenie() {
-  localStorage.removeItem('klik_vedenie_user');
-  switchDocSubtab('operator');
+  if (!sb) return;
+  sb.auth.signOut().then(function() {
+    docSession = null;
+    docsCache = [];
+    authUI();
+    switchDocSubtab('operator');
+  });
 }
 
 function onDocKindChange() {
@@ -999,110 +1017,117 @@ function onDocKindChange() {
 }
 
 function loadDocs() {
-  if (!db) return;
-  var req = db.transaction("docs", "readonly").objectStore("docs").getAll();
-  req.onsuccess = function() {
-    docsCache = (req.result || []).map(function(d) {
-      d.kind = d.kind || 'file';
-      d.audience = d.audience || 'operator';   // staré dokumenty = pre operátorov
-      return d;
-    }).sort(function(a, b) { return b.id - a.id; });
+  if (!sb) return;
+  sb.from('hub_documents').select('*').order('created_at', { ascending: false }).then(function(r) {
+    if (r.error) { docsMsg('Chyba pri načítaní dokumentov: ' + r.error.message); return; }
+    docsMsg('');
+    docsCache = r.data || [];
     renderDocs();
-  };
+  });
 }
 
 function docCard(d, canDelete) {
   docById[d.id] = d;
-  var meta = d.kind === 'link' ? 'Odkaz' : esc(d.fileName) + (d.fileSize ? ' (' + esc(d.fileSize) + ')' : '');
+  var meta = d.kind === 'link' ? 'Odkaz' : esc(d.file_name) + (d.file_size ? ' (' + fmtSize(d.file_size) + ')' : '');
+  var date = new Date(d.created_at).toLocaleDateString('sk-SK');
   var btns = '';
   if (d.kind === 'link') {
-    btns += '<button type="button" class="tl-btn" onclick="openDoc(' + d.id + ')">🔗 Otvoriť</button>';
+    btns += '<button type="button" class="tl-btn" onclick="openDoc(\'' + d.id + '\')">🔗 Otvoriť</button>';
   } else {
-    if (isViewable(d)) btns += '<button type="button" class="tl-btn" onclick="openDoc(' + d.id + ')">👁 Otvoriť</button>';
-    btns += '<button type="button" class="tl-btn" onclick="openDoc(' + d.id + ', true)">💾 Stiahnuť</button>';
+    if (isViewable(d)) btns += '<button type="button" class="tl-btn" onclick="openDoc(\'' + d.id + '\')">👁 Otvoriť</button>';
+    btns += '<button type="button" class="tl-btn" onclick="openDoc(\'' + d.id + '\', true)">💾 Stiahnuť</button>';
   }
-  if (canDelete) btns += '<button type="button" class="tl-btn" style="background:rgba(192,57,43,0.15); color:var(--bad);" onclick="deleteDocument(' + d.id + ')">🗑 Vymazať</button>';
+  if (canDelete) btns += '<button type="button" class="tl-btn" style="background:rgba(192,57,43,0.15); color:var(--bad);" onclick="deleteDocument(\'' + d.id + '\')">🗑 Vymazať</button>';
   return '<div class="card"><h3 data-notr>' + docIcon(d) + ' ' + esc(d.title) + '</h3>' +
     '<p><small data-notr>' + meta + '</small></p>' +
-    '<p><small>Pridané: ' + esc(d.date) + '</small></p>' +
+    '<p><small>Pridané: ' + date + '</small></p>' +
     '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' + btns + '</div></div>';
 }
 
 function renderDocs() {
-  var logged = !!loggedUser();
+  var logged = !!docSession;
   var empty = '<div class="card" style="grid-column: 1/-1;"><p>Zatiaľ tu nič nie je.</p></div>';
   var op = docsCache.filter(function(d) { return d.audience === 'operator'; });
-  var ved = logged ? docsCache.filter(function(d) { return d.audience === 'vedenie'; }) : [];
+  var ved = docsCache.filter(function(d) { return d.audience === 'vedenie'; });
   var opEl = document.getElementById('doc-list-operator');
   var vedEl = document.getElementById('doc-list-vedenie');
   if (opEl) opEl.innerHTML = op.length ? op.map(function(d) { return docCard(d, logged); }).join('') : empty;
   if (vedEl) vedEl.innerHTML = ved.length ? ved.map(function(d) { return docCard(d, true); }).join('') : empty;
 }
 
-function openDoc(id, download) {
-  var d = docById[id];
-  if (!d) return;
-  if (d.kind === 'link') { window.open(d.url, '_blank', 'noopener'); return; }
-  if (!d.fileBlob) return;
-  var url = URL.createObjectURL(d.fileBlob);
-  if (download) {
-    var a = document.createElement('a');
-    a.href = url; a.download = d.fileName;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
-  } else {
-    window.open(url, '_blank');
-    setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+async function getDocUrl(d, download) {
+  var bucket = 'docs-' + d.audience;
+  if (d.audience === 'operator') {
+    return sb.storage.from(bucket).getPublicUrl(d.file_path, download ? { download: d.file_name } : undefined).data.publicUrl;
   }
+  var r = await sb.storage.from(bucket).createSignedUrl(d.file_path, 300, download ? { download: d.file_name } : undefined);
+  return r.error ? null : r.data.signedUrl;
 }
 
-function uploadDocument() {
-  if (!loggedUser()) { alert('Najprv sa prihlás.'); return; }
-  if (!db) { alert('Databáza nie je pripravená, skús to o chvíľu znovu.'); return; }
+function openDoc(id, download) {
+  var d = docById[id];
+  if (!d || !sb) return;
+  if (d.kind === 'link') { window.open(d.url, '_blank', 'noopener'); return; }
+  var w = download ? null : window.open('', '_blank');
+  getDocUrl(d, download).then(function(u) {
+    if (!u) { if (w) w.close(); alert('Súbor sa nepodarilo otvoriť.'); return; }
+    if (download) {
+      var a = document.createElement('a');
+      a.href = u; a.download = d.file_name;
+      document.body.appendChild(a); a.click(); a.remove();
+    } else if (w) { w.opener = null; w.location.href = u; }
+  });
+}
+
+async function uploadDocument() {
+  if (!sb || !docSession) { alert('Najprv sa prihlás.'); return; }
   var title = document.getElementById('doc-title').value.trim();
   var kind = document.getElementById('doc-kind').value;
   var aud = document.getElementById('doc-aud').value;
   if (!title) { alert('Vlož názov.'); return; }
 
-  var rec = { id: Date.now(), title: title, kind: kind, audience: aud,
-              date: new Date().toLocaleDateString('sk-SK'), uploader: loggedUser() };
+  var row = { title: title, kind: kind, audience: aud, uploader: docSession.user.email };
+  var path = null, bucket = 'docs-' + aud;
 
   if (kind === 'link') {
     var u = document.getElementById('doc-url').value.trim();
     if (!u) { alert('Vlož odkaz.'); return; }
     if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
-    rec.url = u;
+    row.url = u;
   } else {
     var fi = document.getElementById('doc-file');
     if (!fi.files || !fi.files.length) { alert('Vyber súbor.'); return; }
-    var f = fi.files[0];
-    rec.fileName = f.name;
-    rec.fileSize = f.size >= 1048576 ? (f.size / 1048576).toFixed(2) + ' MB' : (f.size / 1024).toFixed(1) + ' KB';
-    rec.mime = f.type || '';
-    rec.fileBlob = f;
+    var file = fi.files[0];
+    var safe = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9._-]+/g, '_');
+    path = Date.now() + '_' + safe;
+    var up = await sb.storage.from(bucket).upload(path, file, { contentType: file.type || 'application/octet-stream' });
+    if (up.error) { alert('Nahrávanie zlyhalo: ' + up.error.message); return; }
+    row.file_path = path; row.file_name = file.name; row.file_size = file.size; row.mime = file.type || null;
   }
 
-  var tx = db.transaction("docs", "readwrite");
-  tx.objectStore("docs").put(rec);
-  tx.oncomplete = function() {
-    document.getElementById('doc-title').value = '';
-    document.getElementById('doc-url').value = '';
-    document.getElementById('doc-file').value = '';
-    loadDocs();
-  };
-  tx.onerror = function() { alert('Chyba pri ukladaní!'); };
+  var ins = await sb.from('hub_documents').insert(row);
+  if (ins.error) {
+    if (path) await sb.storage.from(bucket).remove([path]);
+    alert('Uloženie zlyhalo: ' + ins.error.message);
+    return;
+  }
+  document.getElementById('doc-title').value = '';
+  document.getElementById('doc-url').value = '';
+  document.getElementById('doc-file').value = '';
+  loadDocs();
 }
 
-function deleteDocument(id) {
+async function deleteDocument(id) {
   var d = docById[id];
-  if (!d || !db || !loggedUser()) return;
+  if (!d || !sb || !docSession) return;
   if (!confirm('Naozaj chceš vymazať „' + d.title + '“?')) return;
-  var tx = db.transaction("docs", "readwrite");
-  tx.objectStore("docs").delete(id);
-  tx.oncomplete = loadDocs;
+  if (d.kind === 'file' && d.file_path) await sb.storage.from('docs-' + d.audience).remove([d.file_path]);
+  var r = await sb.from('hub_documents').delete().eq('id', id);
+  if (r.error) alert('Mazanie zlyhalo: ' + r.error.message);
+  loadDocs();
 }
 
-document.addEventListener('DOMContentLoaded', checkVedenieSession);
+document.addEventListener('DOMContentLoaded', docsInit);
 </script>
 </body>
 </html>
