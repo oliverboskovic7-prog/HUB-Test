@@ -254,7 +254,7 @@ h1,h2,.logo,.chip{font-family:Sora,Inter,system-ui,sans-serif}
     <div class="wrap hero">
       <h1>Poistenie majetku SK na jednom mieste</h1>
       <p class="lead">Odkazy, splatnosti, vinkulácie, kalkulačka podpoistenia a skript hovoru. Všetko pri hovore.</p>
-      <input id="q" class="search" type="search" placeholder="Čo potrebuješ nájsť? Napríklad podpoistenie..." aria-label="Hľadať v hube">
+      <input id="q" class="search" type="search" name="hub-hladanie" autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="Čo potrebuješ nájsť? Napríklad podpoistenie..." aria-label="Hľadať v hube">
       <div id="none" class="hide">Nič sa nenašlo. Skús iné slovo.</div>
     </div>
   </div>
@@ -553,63 +553,77 @@ S pozdravom</div></div>
     <!-- TAB 8: DOKUMENTY -->
     <div id="tab-dokumenty" class="tab-page">
       <h2>Dokumenty</h2>
-      <p class="sub">Interné dokumenty, metodiky a smernice na stiahnutie.</p>
+      <p class="sub">Súbory a odkazy. Excely a online dokumenty stačí pridať ako odkaz, otvoria sa rovno, bez sťahovania.</p>
 
-      <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom:2px solid var(--line); padding-bottom:12px;">
-        <button type="button" class="tl-btn active-subtab" id="btn-sub-operator" onclick="switchDocSubtab('operator')">👨‍💻 Operátor (Zoznam dokumentov)</button>
-        <button type="button" class="tl-btn" id="btn-sub-vedenie" onclick="switchDocSubtab('vedenie')">🔒 Vedenie (Správa & Nahrávanie)</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:20px; border-bottom:2px solid var(--line); padding-bottom:12px;">
+        <button type="button" class="tl-btn active-subtab" id="btn-sub-operator" onclick="switchDocSubtab('operator')">👨‍💻 Operátori</button>
+        <button type="button" class="tl-btn" id="btn-sub-vedenie" onclick="switchDocSubtab('vedenie')">🔒 Vedenie</button>
+        <button type="button" class="tl-btn hide" id="btn-doc-logout" style="margin-left:auto" onclick="logoutVedenie()">Odhlásiť sa</button>
       </div>
 
-      <!-- Podzáložka: Operátor -->
+      <div id="doc-msg" class="hide" style="margin-bottom:14px;color:var(--bad);font-weight:600;"></div>
+
+      <!-- Operátori: vidí každý -->
       <div id="doc-subtab-operator">
-        <p class="grp">Dostupné dokumenty</p>
-        <div id="doc-list-operator" class="grid">
-          <!-- Dynamicky sa vykresľuje z JS -->
-        </div>
+        <p class="grp">Dokumenty pre operátorov</p>
+        <div id="doc-list-operator" class="grid"></div>
       </div>
 
-      <!-- Podzáložka: Vedenie -->
+      <!-- Vedenie: len po prihlásení -->
       <div id="doc-subtab-vedenie" class="hide">
-        <!-- Prihlasovací box -->
-        <div id="vedenie-login-box" class="calc-box dc">
+        <form id="vedenie-login-box" class="calc-box dc" onsubmit="processVedenieLogin();return false;">
           <p class="grp">Prihlásenie pre Vedenie</p>
           <div class="calc-field">
             <label for="v-email">E-mail</label>
-            <input type="email" id="v-email" placeholder="jana.piskackova@klik.cz">
+            <input type="email" id="v-email" name="username" placeholder="meno@klik.cz" autocomplete="username">
           </div>
           <div class="calc-field">
             <label for="v-pass">Heslo</label>
-            <input type="password" id="v-pass" placeholder="••••••••">
+            <input type="password" id="v-pass" name="password" placeholder="••••••••" autocomplete="current-password">
           </div>
-          <button type="button" class="btn" onclick="processVedenieLogin()">Prihlásiť sa</button>
-        </div>
+          <button type="submit" class="btn">Prihlásiť sa</button>
+        </form>
 
-        <!-- Správca nahrávania pre vedenie -->
         <div id="vedenie-upload-box" class="hide">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:var(--pink-soft); padding:10px 16px; border-radius:12px;">
-            <span id="vedenie-user-badge" style="font-weight:700; color:var(--pink);">Prihlásený používateľ: Vedenie</span>
-            <button type="button" class="tl-btn" onclick="logoutVedenie()">Odhlásiť sa</button>
+          <div style="background:var(--pink-soft); padding:10px 16px; border-radius:12px; margin-bottom:15px;">
+            <span id="vedenie-user-badge" style="font-weight:700; color:var(--pink);"></span>
           </div>
 
           <div class="calc-box dc" style="max-width:none; margin-bottom:24px;">
-            <p class="grp">Nahrávanie nového dokumentu na HUB</p>
+            <p class="grp">Pridať dokument alebo odkaz</p>
             <div class="dc-row">
               <div class="calc-field">
-                <label for="doc-title">Názov dokumentu / Popis</label>
-                <input type="text" id="doc-title" placeholder="napr. Metodika poistenia majetku 2026">
+                <label for="doc-title">Názov</label>
+                <input type="text" id="doc-title" placeholder="napr. Tabuľka výročí 2026" data-notr>
               </div>
               <div class="calc-field">
-                <label for="doc-file">Vyber súbor (bez obmedzenia veľkosti)</label>
-                <input type="file" id="doc-file">
+                <label for="doc-kind">Čo pridávaš</label>
+                <select id="doc-kind" onchange="onDocKindChange()">
+                  <option value="link">🔗 Odkaz (Excel online, Google Sheets, web…)</option>
+                  <option value="file">📄 Súbor z počítača</option>
+                </select>
+              </div>
+              <div class="calc-field">
+                <label for="doc-aud">Pre koho</label>
+                <select id="doc-aud">
+                  <option value="operator">Operátori (vidí každý)</option>
+                  <option value="vedenie">Iba vedenie (po prihlásení)</option>
+                </select>
               </div>
             </div>
-            <button type="button" class="btn" onclick="uploadDocument()">Upload na HUB</button>
+            <div class="calc-field" id="doc-url-wrap">
+              <label for="doc-url">Odkaz (URL)</label>
+              <input type="text" id="doc-url" placeholder="https://..." data-notr>
+            </div>
+            <div class="calc-field hide" id="doc-file-wrap">
+              <label for="doc-file">Súbor</label>
+              <input type="file" id="doc-file">
+            </div>
+            <button type="button" class="btn" id="doc-save-btn" onclick="uploadDocument()">Pridať</button>
           </div>
 
-          <p class="grp">Správa nahratých dokumentov</p>
-          <div id="doc-list-vedenie" class="grid">
-            <!-- Dynamicky sa vykresľuje z JS -->
-          </div>
+          <p class="grp">Dokumenty iba pre vedenie</p>
+          <div id="doc-list-vedenie" class="grid"></div>
         </div>
       </div>
     </div>
@@ -907,202 +921,188 @@ function tr(t){var m=t.match(/^(\s*)([\s\S]*?)(\s*)$/),c=m[2];if(!c)return t;
 })();
 </script>
 <script>
-// --- LOGIKA DOKUMENTOV (IndexedDB pre veľké súbory bez obmedzenia) ---
+// --- DOKUMENTY (ukladanie v prehliadači, IndexedDB) ---
 const vedenieAuth = {
   "jana.piskackova@klik.cz": "Klik2026",
   "oliver.boskovic@klik.cz": "Klik2026",
   "jaroslav.opalecky@klik.cz": "Klik2026"
 };
 
-let db;
+let db = null, docsCache = [];
+const docById = {};
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function docIcon(d) {
+  if (d.kind === 'link') return '🔗';
+  var f = (d.fileName || '').toLowerCase();
+  if (/\.(xlsx?|csv)$/.test(f)) return '📊';
+  if (/\.pdf$/.test(f)) return '📕';
+  if (/\.docx?$/.test(f)) return '📝';
+  return '📄';
+}
+function isViewable(d) {
+  var m = (d.mime || '').toLowerCase(), f = (d.fileName || '').toLowerCase();
+  return m === 'application/pdf' || m.indexOf('image/') === 0 || m === 'text/plain' || /\.(pdf|png|jpe?g|gif|webp|txt)$/.test(f);
+}
+
 const dbReq = indexedDB.open("KlikHubDocsDB", 1);
 dbReq.onupgradeneeded = function(e) {
-  db = e.target.result;
-  if (!db.objectStoreNames.contains("docs")) {
-    db.createObjectStore("docs", { keyPath: "id" });
-  }
+  var d = e.target.result;
+  if (!d.objectStoreNames.contains("docs")) d.createObjectStore("docs", { keyPath: "id" });
 };
-dbReq.onsuccess = function(e) {
-  db = e.target.result;
+dbReq.onsuccess = function(e) { db = e.target.result; loadDocs(); };
+
+function loggedUser() { return localStorage.getItem('klik_vedenie_user'); }
+
+function checkVedenieSession() {
+  var u = loggedUser();
+  document.getElementById('vedenie-login-box').classList.toggle('hide', !!u);
+  document.getElementById('vedenie-upload-box').classList.toggle('hide', !u);
+  document.getElementById('btn-doc-logout').classList.toggle('hide', !u);
+  if (u) document.getElementById('vedenie-user-badge').textContent = 'Prihlásený: ' + u;
   renderDocs();
-};
+}
 
 function switchDocSubtab(type) {
-  var btnOp = document.getElementById('btn-sub-operator');
-  var btnVed = document.getElementById('btn-sub-vedenie');
-  var subOp = document.getElementById('doc-subtab-operator');
-  var subVed = document.getElementById('doc-subtab-vedenie');
-
-  if(type === 'operator') {
-    btnOp.classList.add('active-subtab');
-    btnVed.classList.remove('active-subtab');
-    subOp.classList.remove('hide');
-    subVed.classList.add('hide');
-    renderDocs();
-  } else {
-    btnVed.classList.add('active-subtab');
-    btnOp.classList.remove('active-subtab');
-    subVed.classList.remove('hide');
-    subOp.classList.add('hide');
-    checkVedenieSession();
-  }
+  var op = type === 'operator';
+  document.getElementById('btn-sub-operator').classList.toggle('active-subtab', op);
+  document.getElementById('btn-sub-vedenie').classList.toggle('active-subtab', !op);
+  document.getElementById('doc-subtab-operator').classList.toggle('hide', !op);
+  document.getElementById('doc-subtab-vedenie').classList.toggle('hide', op);
+  checkVedenieSession();
 }
 
 function processVedenieLogin() {
   var email = document.getElementById('v-email').value.trim().toLowerCase();
   var pass = document.getElementById('v-pass').value;
-
   if (vedenieAuth[email] && vedenieAuth[email] === pass) {
     localStorage.setItem('klik_vedenie_user', email);
+    document.getElementById('v-pass').value = '';
     checkVedenieSession();
   } else {
-    alert("Nesprávny e-mail alebo heslo!");
+    alert('Nesprávny e-mail alebo heslo!');
   }
 }
-
-function checkVedenieSession() {
-  var loggedUser = localStorage.getItem('klik_vedenie_user');
-  var loginBox = document.getElementById('vedenie-login-box');
-  var uploadBox = document.getElementById('vedenie-upload-box');
-  var badge = document.getElementById('vedenie-user-badge');
-
-  if (loggedUser) {
-    loginBox.classList.add('hide');
-    uploadBox.classList.remove('hide');
-    badge.textContent = 'Prihlásený: ' + loggedUser;
-    renderDocs();
-  } else {
-    loginBox.classList.remove('hide');
-    uploadBox.classList.add('hide');
-  }
-}
-
 function logoutVedenie() {
   localStorage.removeItem('klik_vedenie_user');
-  document.getElementById('v-pass').value = '';
-  checkVedenieSession();
+  switchDocSubtab('operator');
 }
 
-function uploadDocument() {
-  var title = document.getElementById('doc-title').value.trim();
-  var fileInput = document.getElementById('doc-file');
-
-  if (!title) { alert('Prosím vlož názov dokumentu.'); return; }
-  if (!fileInput.files || fileInput.files.length === 0) { alert('Vyber súbor na nahranie.'); return; }
-
-  var file = fileInput.files[0];
-  var sizeFormatted = (file.size >= 1024 * 1024) 
-    ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' 
-    : (file.size / 1024).toFixed(1) + ' KB';
-
-  var docData = {
-    id: Date.now(),
-    title: title,
-    fileName: file.name,
-    fileSize: sizeFormatted,
-    date: new Date().toLocaleDateString('sk-SK'),
-    fileBlob: file,
-    uploader: localStorage.getItem('klik_vedenie_user')
-  };
-
-  if (!db) { alert('Databáza nie je pripravená, skús to o chvíľu znovu.'); return; }
-
-  var tx = db.transaction("docs", "readwrite");
-  var store = tx.objectStore("docs");
-  store.put(docData);
-
-  tx.oncomplete = function() {
-    alert('Dokument bol úspešne nahratý!');
-    document.getElementById('doc-title').value = '';
-    fileInput.value = '';
-    renderDocs();
-  };
-  tx.onerror = function() {
-    alert('Chyba pri ukladaní súboru!');
-  };
+function onDocKindChange() {
+  var isLink = document.getElementById('doc-kind').value === 'link';
+  document.getElementById('doc-url-wrap').classList.toggle('hide', !isLink);
+  document.getElementById('doc-file-wrap').classList.toggle('hide', isLink);
 }
 
-function downloadDocFile(id) {
+function loadDocs() {
   if (!db) return;
-  var tx = db.transaction("docs", "readonly");
-  var store = tx.objectStore("docs");
-  var req = store.get(id);
+  var req = db.transaction("docs", "readonly").objectStore("docs").getAll();
   req.onsuccess = function() {
-    var doc = req.result;
-    if (doc && doc.fileBlob) {
-      var url = URL.createObjectURL(doc.fileBlob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = doc.fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-    }
+    docsCache = (req.result || []).map(function(d) {
+      d.kind = d.kind || 'file';
+      d.audience = d.audience || 'operator';   // staré dokumenty = pre operátorov
+      return d;
+    }).sort(function(a, b) { return b.id - a.id; });
+    renderDocs();
   };
 }
 
-function deleteDocument(id) {
-  if (!confirm('Naozaj chceš vymazať tento dokument?')) return;
-  if (!db) return;
-  var tx = db.transaction("docs", "readwrite");
-  var store = tx.objectStore("docs");
-  store.delete(id);
-  tx.oncomplete = function() {
-    renderDocs();
-  };
+function docCard(d, canDelete) {
+  docById[d.id] = d;
+  var meta = d.kind === 'link' ? 'Odkaz' : esc(d.fileName) + (d.fileSize ? ' (' + esc(d.fileSize) + ')' : '');
+  var btns = '';
+  if (d.kind === 'link') {
+    btns += '<button type="button" class="tl-btn" onclick="openDoc(' + d.id + ')">🔗 Otvoriť</button>';
+  } else {
+    if (isViewable(d)) btns += '<button type="button" class="tl-btn" onclick="openDoc(' + d.id + ')">👁 Otvoriť</button>';
+    btns += '<button type="button" class="tl-btn" onclick="openDoc(' + d.id + ', true)">💾 Stiahnuť</button>';
+  }
+  if (canDelete) btns += '<button type="button" class="tl-btn" style="background:rgba(192,57,43,0.15); color:var(--bad);" onclick="deleteDocument(' + d.id + ')">🗑 Vymazať</button>';
+  return '<div class="card"><h3 data-notr>' + docIcon(d) + ' ' + esc(d.title) + '</h3>' +
+    '<p><small data-notr>' + meta + '</small></p>' +
+    '<p><small>Pridané: ' + esc(d.date) + '</small></p>' +
+    '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' + btns + '</div></div>';
 }
 
 function renderDocs() {
-  if (!db) return;
-  var tx = db.transaction("docs", "readonly");
-  var store = tx.objectStore("docs");
-  var req = store.getAll();
-
-  req.onsuccess = function() {
-    var docs = req.result || [];
-    var opContainer = document.getElementById('doc-list-operator');
-    var vedContainer = document.getElementById('doc-list-vedenie');
-
-    if (docs.length === 0) {
-      var emptyHtml = '<div class="card" style="grid-column: 1/-1;"><p>Žiadne nahraté dokumenty.</p></div>';
-      if(opContainer) opContainer.innerHTML = emptyHtml;
-      if(vedContainer) vedContainer.innerHTML = emptyHtml;
-      return;
-    }
-
-    var opHtml = '';
-    var vedHtml = '';
-
-    docs.forEach(function(doc) {
-      opHtml += '<div class="card">' +
-        '<h3>📄 ' + doc.title + '</h3>' +
-        '<p><small>' + doc.fileName + ' (' + doc.fileSize + ')</small></p>' +
-        '<p><small>Pridané: ' + doc.date + '</small></p>' +
-        '<div style="margin-top:12px;">' +
-          '<button type="button" onclick="downloadDocFile(' + doc.id + ')" class="tl-btn">💾 Stiahnuť</button>' +
-        '</div>' +
-      '</div>';
-
-      vedHtml += '<div class="card">' +
-        '<h3>📄 ' + doc.title + '</h3>' +
-        '<p><small>' + doc.fileName + ' (' + doc.fileSize + ')</small></p>' +
-        '<p><small>Pridal: ' + doc.uploader + ' (' + doc.date + ')</small></p>' +
-        '<div style="margin-top:12px; display:flex; gap:8px;">' +
-          '<button type="button" onclick="downloadDocFile(' + doc.id + ')" class="tl-btn">💾 Stiahnuť</button>' +
-          '<button type="button" class="tl-btn" style="background:rgba(192,57,43,0.15); color:var(--bad);" onclick="deleteDocument(' + doc.id + ')">🗑 Vymazať</button>' +
-        '</div>' +
-      '</div>';
-    });
-
-    if(opContainer) opContainer.innerHTML = opHtml;
-    if(vedContainer) vedContainer.innerHTML = vedHtml;
-  };
+  var logged = !!loggedUser();
+  var empty = '<div class="card" style="grid-column: 1/-1;"><p>Zatiaľ tu nič nie je.</p></div>';
+  var op = docsCache.filter(function(d) { return d.audience === 'operator'; });
+  var ved = logged ? docsCache.filter(function(d) { return d.audience === 'vedenie'; }) : [];
+  var opEl = document.getElementById('doc-list-operator');
+  var vedEl = document.getElementById('doc-list-vedenie');
+  if (opEl) opEl.innerHTML = op.length ? op.map(function(d) { return docCard(d, logged); }).join('') : empty;
+  if (vedEl) vedEl.innerHTML = ved.length ? ved.map(function(d) { return docCard(d, true); }).join('') : empty;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  checkVedenieSession();
-});
+function openDoc(id, download) {
+  var d = docById[id];
+  if (!d) return;
+  if (d.kind === 'link') { window.open(d.url, '_blank', 'noopener'); return; }
+  if (!d.fileBlob) return;
+  var url = URL.createObjectURL(d.fileBlob);
+  if (download) {
+    var a = document.createElement('a');
+    a.href = url; a.download = d.fileName;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+  } else {
+    window.open(url, '_blank');
+    setTimeout(function() { URL.revokeObjectURL(url); }, 60000);
+  }
+}
+
+function uploadDocument() {
+  if (!loggedUser()) { alert('Najprv sa prihlás.'); return; }
+  if (!db) { alert('Databáza nie je pripravená, skús to o chvíľu znovu.'); return; }
+  var title = document.getElementById('doc-title').value.trim();
+  var kind = document.getElementById('doc-kind').value;
+  var aud = document.getElementById('doc-aud').value;
+  if (!title) { alert('Vlož názov.'); return; }
+
+  var rec = { id: Date.now(), title: title, kind: kind, audience: aud,
+              date: new Date().toLocaleDateString('sk-SK'), uploader: loggedUser() };
+
+  if (kind === 'link') {
+    var u = document.getElementById('doc-url').value.trim();
+    if (!u) { alert('Vlož odkaz.'); return; }
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    rec.url = u;
+  } else {
+    var fi = document.getElementById('doc-file');
+    if (!fi.files || !fi.files.length) { alert('Vyber súbor.'); return; }
+    var f = fi.files[0];
+    rec.fileName = f.name;
+    rec.fileSize = f.size >= 1048576 ? (f.size / 1048576).toFixed(2) + ' MB' : (f.size / 1024).toFixed(1) + ' KB';
+    rec.mime = f.type || '';
+    rec.fileBlob = f;
+  }
+
+  var tx = db.transaction("docs", "readwrite");
+  tx.objectStore("docs").put(rec);
+  tx.oncomplete = function() {
+    document.getElementById('doc-title').value = '';
+    document.getElementById('doc-url').value = '';
+    document.getElementById('doc-file').value = '';
+    loadDocs();
+  };
+  tx.onerror = function() { alert('Chyba pri ukladaní!'); };
+}
+
+function deleteDocument(id) {
+  var d = docById[id];
+  if (!d || !db || !loggedUser()) return;
+  if (!confirm('Naozaj chceš vymazať „' + d.title + '“?')) return;
+  var tx = db.transaction("docs", "readwrite");
+  tx.objectStore("docs").delete(id);
+  tx.oncomplete = loadDocs;
+}
+
+document.addEventListener('DOMContentLoaded', checkVedenieSession);
 </script>
 </body>
 </html>
