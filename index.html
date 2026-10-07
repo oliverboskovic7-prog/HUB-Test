@@ -923,7 +923,7 @@ function tr(t){var m=t.match(/^(\s*)([\s\S]*?)(\s*)$/),c=m[2];if(!c)return t;
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // --- DOKUMENTY (Supabase: spoločné úložisko + prihlásenie vedenia) ---
-const SUPABASE_URL = 'https://nattqgydzbteovqqhesh.supabase.co';
+const SUPABASE_URL = 'https://eiaevatcnohzcwvrnjkk.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_qweFe9nw3Mh-JbfBUHBy7w_KkKP-rmE';
 
 let sb = null, docSession = null, docsCache = [];
@@ -996,7 +996,7 @@ function processVedenieLogin() {
   var email = document.getElementById('v-email').value.trim();
   var pass = document.getElementById('v-pass').value;
   sb.auth.signInWithPassword({ email: email, password: pass }).then(function(r) {
-    if (r.error) alert('Nesprávny e-mail alebo heslo.');
+    if (r.error) alert('Prihlásenie zlyhalo: ' + r.error.message);
     else document.getElementById('v-pass').value = '';
   });
 }
