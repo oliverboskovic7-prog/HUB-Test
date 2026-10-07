@@ -210,6 +210,14 @@ h1,h2,.logo,.chip{font-family:Sora,Inter,system-ui,sans-serif}
 .hubsw{display:flex;gap:2px;background:var(--pink-soft);border-radius:999px;padding:3px}
 .hubsw a{font-weight:700;font-size:13px;padding:5px 12px;border-radius:999px;color:var(--pink)}
 .hubsw a.on{background:var(--pink);color:#fff}.hubsw a:hover{text-decoration:none}
+
+.lk{position:relative;display:flex}
+.lk>a{flex:1;padding-right:76px}
+.lk:has(>a.hide){display:none}
+.lk .lk-act{position:absolute;top:50%;right:8px;transform:translateY(-50%);display:flex;gap:2px}
+.lk .lk-act button{border:0;background:transparent;cursor:pointer;font-size:17px;padding:4px 6px;border-radius:8px;line-height:1}
+.lk .lk-act button:hover{background:var(--pink-soft)}
+.doc-search{width:100%;max-width:420px;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -528,7 +536,7 @@ S pozdravom</div></div>
       </div>
       <p class="grp" style="margin-top:26px">Čo poistíme a čo nie</p>
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
-        <div class="card" data-s="čo poistíme majetok" style="border-top-color:#2e9e57"><h3>✅ Poistíme</h3><ul style="padding:0;margin:0"><li style="margin:5px 0;list-style:none">✓ Trvalo obývané budovy</li><li style="margin:5px 0;list-style:none">✓ Byty</li><li style="margin:5px 0;list-style:none">✓ Rodinné domy</li><li style="margin:5px 0;list-style:none">✓ Domy do 4 bytových jednotiek</li><li style="margin:5px 0;list-style:none">✓ Rekreačné objekty</li><li style="margin:5px 0;list-style:none">✓ Chaty, chalupy</li><li style="margin:5px 0;list-style:none">✓ Záhradné domčeky</li><li style="margin:5px 0;list-style:none">✓ Rozostavané domy s číslom parcely</li></ul></div>
+        <div class="card" data-s="čo poistíme majetok" style="border-top-color:#2e9e57"><h3>✅ Poistíme</h3><ul style="padding:0;margin:0"><li style="margin:5px 0;list-style:none">✓ Trvalo obývané budovy</li><li style="margin:5px 0;list-style:none">✓ Byty</li><li style="margin:5px 0;list-style:none">✓ Rodinné domy</li><li style="margin:5px 0;list-style:none">✓ Domy do 4 bytových jednotiek</li><li style="margin:5px 0;list-style:none">✓ Rekreačné objekty</li><li style="margin:5px 0;list-style:none">✓ Chaty, chalupy</li><li style="margin:5px 0;list-style:none">✓ Záhradné domčeky</li><li style="margin:5px 0;list-style:none">✓ Objekty určené na podnikanie do 50 % plochy</li><li style="margin:5px 0;list-style:none">✓ Rozostavané domy s číslom parcely</li></ul></div>
         <div class="card" data-s="čo nepoistíme majetok" style="border-top-color:#d6336c"><h3>❌ Nepoistíme</h3><ul style="padding:0;margin:0"><li style="margin:5px 0;list-style:none">✗ Panelové domy</li><li style="margin:5px 0;list-style:none">✗ Ubytovne</li><li style="margin:5px 0;list-style:none">✗ Objekty určené na podnikanie</li><li style="margin:5px 0;list-style:none">✗ Činžové domy</li><li style="margin:5px 0;list-style:none">✗ Neudržiavané objekty</li><li style="margin:5px 0;list-style:none">✗ Objekty registrované na firmy</li><li style="margin:5px 0;list-style:none">✗ Bytové komplexy</li><li style="margin:5px 0;list-style:none">✗ Nelegálne stavby</li><li style="margin:5px 0;list-style:none">✗ Obytné domy s viac ako 4 bytovými jednotkami</li></ul></div>
       </div>
       <p class="grp" style="margin-top:26px">Poistenie majetku v skratke</p>
@@ -552,6 +560,7 @@ S pozdravom</div></div>
       </div>
 
       <div id="doc-msg" class="hide" style="margin-bottom:14px;color:var(--bad);font-weight:600;"></div>
+      <input type="search" id="doc-search" class="doc-search" name="doc-hladanie" placeholder="🔎 Hľadať v dokumentoch…" autocomplete="off" oninput="onDocSearch()" data-notr>
 
       <!-- Operátori: vidí každý -->
       <div id="doc-subtab-operator">
@@ -579,7 +588,12 @@ S pozdravom</div></div>
             <span id="vedenie-user-badge" style="font-weight:700; color:var(--pink);"></span>
           </div>
 
-          <div class="calc-box dc" style="max-width:none; margin-bottom:24px;">
+          <p class="grp">Dokumenty iba pre vedenie</p>
+          <div id="doc-list-vedenie" class="grid"></div>
+          <div style="margin-top:18px;">
+            <button type="button" class="btn" id="doc-add-toggle" onclick="toggleAddForm()">➕ Pridať dokument</button>
+          </div>
+          <div id="doc-add-form" class="calc-box dc hide" style="max-width:none; margin-top:16px;">
             <p class="grp">Pridať dokument alebo odkaz</p>
             <div class="dc-row">
               <div class="calc-field">
@@ -612,8 +626,6 @@ S pozdravom</div></div>
             <button type="button" class="btn" id="doc-save-btn" onclick="uploadDocument()">Pridať</button>
           </div>
 
-          <p class="grp">Dokumenty iba pre vedenie</p>
-          <div id="doc-list-vedenie" class="grid"></div>
         </div>
       </div>
     </div>
@@ -1000,6 +1012,15 @@ function logoutVedenie() {
   });
 }
 
+function toggleAddForm(force) {
+  var f = document.getElementById('doc-add-form'), b = document.getElementById('doc-add-toggle');
+  if (!f) return;
+  var open = (typeof force === 'boolean') ? force : f.classList.contains('hide');
+  f.classList.toggle('hide', !open);
+  b.textContent = open ? '✖ Zavrieť' : '➕ Pridať dokument';
+  if (open) f.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 function onDocKindChange() {
   var isLink = document.getElementById('doc-kind').value === 'link';
   document.getElementById('doc-url-wrap').classList.toggle('hide', !isLink);
@@ -1016,8 +1037,46 @@ function loadDocs() {
   });
 }
 
+function normTxt(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+function getPins(k) { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } }
+function setPins(k, a) { try { localStorage.setItem(k, JSON.stringify(a)); } catch (e) {} }
+function togglePin(k, id) {
+  var a = getPins(k), i = a.indexOf(id);
+  if (i > -1) a.splice(i, 1); else a.push(id);
+  setPins(k, a);
+}
+function copyToClip(text, btn) {
+  var done = function() {
+    if (!btn) return;
+    var o = btn.getAttribute('data-o') || btn.textContent;
+    btn.setAttribute('data-o', o);
+    btn.textContent = btn.classList.contains('tl-btn') ? 'Skopírované ✓' : '✓';
+    setTimeout(function() { btn.textContent = o; }, 1500);
+  };
+  var fb = function() {
+    var t = document.createElement('textarea');
+    t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(t);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fb); else fb();
+}
+function docShareUrl(d) {
+  if (d.kind === 'link') return d.url;
+  if (d.audience === 'operator' && sb) return sb.storage.from('docs-operator').getPublicUrl(d.file_path).data.publicUrl;
+  return null;   // súbory pre vedenie majú len dočasný odkaz
+}
+function pinDoc(id) { togglePin('hub_pins_docs', id); renderDocs(); }
+function copyDocLink(id, btn) {
+  var d = docById[id], u = d && docShareUrl(d);
+  if (u) copyToClip(u, btn);
+}
+function onDocSearch() { renderDocs(); }
+
 function docCard(d, canDelete) {
   docById[d.id] = d;
+  var pinned = getPins('hub_pins_docs').indexOf(d.id) > -1;
   var meta = d.kind === 'link' ? 'Odkaz' : esc(d.file_name) + (d.file_size ? ' (' + fmtSize(d.file_size) + ')' : '');
   var date = new Date(d.created_at).toLocaleDateString('sk-SK');
   var btns = '';
@@ -1027,18 +1086,30 @@ function docCard(d, canDelete) {
     if (isViewable(d)) btns += '<button type="button" class="tl-btn" onclick="openDoc(\'' + d.id + '\')">👁 Otvoriť</button>';
     btns += '<button type="button" class="tl-btn" onclick="openDoc(\'' + d.id + '\', true)">💾 Stiahnuť</button>';
   }
+  if (docShareUrl(d)) btns += '<button type="button" class="tl-btn" onclick="copyDocLink(\'' + d.id + '\', this)">📋 Kopírovať odkaz</button>';
+  btns += '<button type="button" class="tl-btn" onclick="pinDoc(\'' + d.id + '\')">' + (pinned ? '★ Pripnuté' : '☆ Pripnúť') + '</button>';
   if (canDelete) btns += '<button type="button" class="tl-btn" style="background:rgba(192,57,43,0.15); color:var(--bad);" onclick="deleteDocument(\'' + d.id + '\')">🗑 Vymazať</button>';
-  return '<div class="card"><h3 data-notr>' + docIcon(d) + ' ' + esc(d.title) + '</h3>' +
+  return '<div class="card"><h3 data-notr>' + (pinned ? '⭐ ' : '') + docIcon(d) + ' ' + esc(d.title) + '</h3>' +
     '<p><small data-notr>' + meta + '</small></p>' +
     '<p><small>Pridané: ' + date + '</small></p>' +
     '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' + btns + '</div></div>';
 }
 
+function prepList(list) {
+  var q = normTxt((document.getElementById('doc-search') || {}).value || '').trim();
+  var pins = getPins('hub_pins_docs');
+  var out = list.filter(function(d) { return !q || normTxt(d.title).indexOf(q) > -1; });
+  var top = out.filter(function(d) { return pins.indexOf(d.id) > -1; });
+  var rest = out.filter(function(d) { return pins.indexOf(d.id) < 0; });
+  return top.concat(rest);
+}
+
 function renderDocs() {
   var logged = !!docSession;
-  var empty = '<div class="card" style="grid-column: 1/-1;"><p>Zatiaľ tu nič nie je.</p></div>';
-  var op = docsCache.filter(function(d) { return d.audience === 'operator'; });
-  var ved = docsCache.filter(function(d) { return d.audience === 'vedenie'; });
+  var searching = !!((document.getElementById('doc-search') || {}).value || '').trim();
+  var empty = '<div class="card" style="grid-column: 1/-1;"><p>' + (searching ? 'Nič sa nenašlo.' : 'Zatiaľ tu nič nie je.') + '</p></div>';
+  var op = prepList(docsCache.filter(function(d) { return d.audience === 'operator'; }));
+  var ved = prepList(docsCache.filter(function(d) { return d.audience === 'vedenie'; }));
   var opEl = document.getElementById('doc-list-operator');
   var vedEl = document.getElementById('doc-list-vedenie');
   if (opEl) opEl.innerHTML = op.length ? op.map(function(d) { return docCard(d, logged); }).join('') : empty;
@@ -1104,6 +1175,7 @@ async function uploadDocument() {
   document.getElementById('doc-title').value = '';
   document.getElementById('doc-url').value = '';
   document.getElementById('doc-file').value = '';
+  toggleAddForm(false);
   loadDocs();
 }
 
@@ -1116,6 +1188,43 @@ async function deleteDocument(id) {
   if (r.error) alert('Mazanie zlyhalo: ' + r.error.message);
   loadDocs();
 }
+
+// Odkazy: pripnutie (hviezdička) a kopírovanie
+(function(){
+  var box = document.querySelector('#tab-odkazy .links');
+  if (!box) return;
+  var KEY = 'hub_pins_links';
+  function pins(){ return getPins(KEY); }
+  [].slice.call(box.querySelectorAll(':scope > a')).forEach(function(a){
+    var w = document.createElement('div');
+    w.className = 'lk';
+    w.setAttribute('data-href', a.getAttribute('href'));
+    a.parentNode.insertBefore(w, a);
+    w.appendChild(a);
+    var act = document.createElement('div');
+    act.className = 'lk-act';
+    act.innerHTML = '<button type="button" class="lk-copy" title="Kopírovať odkaz" data-notr>📋</button><button type="button" class="lk-pin" title="Pripnúť navrch" data-notr>☆</button>';
+    w.appendChild(act);
+    act.querySelector('.lk-copy').addEventListener('click', function(e){ e.preventDefault(); copyToClip(a.href, this); });
+    act.querySelector('.lk-pin').addEventListener('click', function(e){ e.preventDefault(); togglePin(KEY, w.getAttribute('data-href')); apply(); });
+  });
+  function apply(){
+    var p = pins(), wr = [].slice.call(box.querySelectorAll(':scope > .lk'));
+    wr.forEach(function(w, i){ w.setAttribute('data-i', w.getAttribute('data-i') || i); });
+    wr.sort(function(x, y){
+      var px = p.indexOf(x.getAttribute('data-href')) > -1 ? 0 : 1, py = p.indexOf(y.getAttribute('data-href')) > -1 ? 0 : 1;
+      return px - py || (+x.getAttribute('data-i')) - (+y.getAttribute('data-i'));
+    });
+    wr.forEach(function(w){
+      box.appendChild(w);
+      var on = p.indexOf(w.getAttribute('data-href')) > -1;
+      var b = w.querySelector('.lk-pin');
+      b.textContent = on ? '★' : '☆';
+      b.title = on ? 'Odopnúť' : 'Pripnúť navrch';
+    });
+  }
+  apply();
+})();
 
 document.addEventListener('DOMContentLoaded', docsInit);
 </script>
