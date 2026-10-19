@@ -233,6 +233,9 @@ details.ins summary .fav-star{float:right}
 .fav-box .grp{margin:0 0 8px}.fav-list{display:flex;flex-wrap:wrap;gap:8px}
 .fav-chip{font:inherit;font-size:14px;font-weight:600;padding:7px 14px;border-radius:999px;border:0;background:var(--pink);color:#fff;cursor:pointer}
 details.ins li{white-space:pre-line}
+.doc-search{width:100%;max-width:420px;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;margin-bottom:16px}
+.active-subtab{background:var(--pink);color:#fff}
+nav button{font:inherit;font-weight:600;font-size:14px;color:var(--ink);background:none;border:0;padding:8px 14px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}nav button:hover{background:var(--pink-soft);color:var(--pink)}nav button.active{background:var(--pink);color:#fff}.obj summary{cursor:pointer;font-weight:700;font-size:17px}.obj .say{margin:10px 0 6px}.obj .tip{color:var(--muted);font-size:14px;margin:6px 0 0}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -242,17 +245,19 @@ details.ins li{white-space:pre-line}
     <div class="logo" onclick="switchTab('odkazy')">CZ Hub <span>Klik</span></div>
     <div class="hubsw" aria-label="Přepnout hub"><a href="index.html">SK</a><a href="cz.html" class="on">CZ</a></div>
     <nav aria-label="Sekcie">
-      <a onclick="switchTab('odkazy')" id="nav-odkazy" class="active">Odkazy</a>
-      <a onclick="switchTab('splatnosti')" id="nav-splatnosti">Splatnosti</a>
-      <a onclick="switchTab('vypovede')" id="nav-vypovede">Výpovědi</a>
-      <a onclick="switchTab('vinkulacie')" id="nav-vinkulacie">Vinkulace</a>
-      <a onclick="switchTab('kalkulacka')" id="nav-kalkulacka">Kalkulačka podpojištění</a>
-      <a onclick="switchTab('hovor')" id="nav-hovor">Skript hovoru</a>
-      <a onclick="switchTab('poistovne')" id="nav-poistovne">Pojišťovny</a>
-      <a onclick="switchTab('sablony')" id="nav-sablony">Šablony</a>
-      <a onclick="switchTab('majetok')" id="nav-majetok">Majetek</a>
+      <button type="button" onclick="switchTab('odkazy')" id="nav-odkazy" class="active">Odkazy</button>
+      <button type="button" onclick="switchTab('splatnosti')" id="nav-splatnosti">Splatnosti</button>
+      <button type="button" onclick="switchTab('vypovede')" id="nav-vypovede">Výpovědi</button>
+      <button type="button" onclick="switchTab('vinkulacie')" id="nav-vinkulacie">Vinkulace</button>
+      <button type="button" onclick="switchTab('kalkulacka')" id="nav-kalkulacka">Kalkulačka podpojištění</button>
+      <button type="button" onclick="switchTab('hovor')" id="nav-hovor">Skript hovoru</button>
+      <button type="button" onclick="switchTab('poistovne')" id="nav-poistovne">Pojišťovny</button>
+      <button type="button" onclick="switchTab('namietky')" id="nav-namietky">Námitky</button>
+      <button type="button" onclick="switchTab('sablony')" id="nav-sablony">Šablony</button>
+      <button type="button" onclick="switchTab('majetok')" id="nav-majetok">Majetek</button>
+      <button type="button" onclick="switchTab('dokumenty')" id="nav-dokumenty">Dokumenty</button>
       </nav>
-    <a class="btn" href="https://is.eoit.cz/crm" target="_blank" rel="noopener">Dashboard</a>
+    <a class="btn" href="#" onclick="switchTab('dokumenty');return false;">Dokumenty</a>
     <button type="button" class="theme-btn" id="theme-btn" aria-label="Přepnout světlý/tmavý režim" title="Světlý / tmavý režim">🌙</button>
   </div>
 </header>
@@ -265,8 +270,10 @@ details.ins li{white-space:pre-line}
 <button type="button" id="side-kalkulacka" onclick="switchTab('kalkulacka')"><span class="si">🧮</span>Kalkulačka podpojištění</button>
 <button type="button" id="side-hovor" onclick="switchTab('hovor')"><span class="si">🎯</span>Skript hovoru</button>
 <button type="button" id="side-poistovne" onclick="switchTab('poistovne')"><span class="si">🏢</span>Pojišťovny</button>
+<button type="button" id="side-namietky" onclick="switchTab('namietky')"><span class="si">💬</span>Námitky</button>
 <button type="button" id="side-sablony" onclick="switchTab('sablony')"><span class="si">✉</span>Šablony</button>
 <button type="button" id="side-majetok" onclick="switchTab('majetok')"><span class="si">🏠</span>Majetek</button>
+<button type="button" id="side-dokumenty" onclick="switchTab('dokumenty')"><span class="si">📁</span>Dokumenty</button>
 </aside>
 
 
@@ -276,7 +283,7 @@ details.ins li{white-space:pre-line}
     <div class="wrap hero">
       <h1>Pojištění majetku CZ na jednom místě</h1>
       <p class="lead">Odkazy, splatnosti, výpovědi, pojišťovny a skript hovoru. Vše při hovoru.</p>
-      <input id="q" class="search" type="search" placeholder="Co potřebuješ najít? Například podpojištění..." aria-label="Hledat v hubu">
+      <input id="q" class="search" type="search" name="hub-hledani" autocomplete="off" data-lpignore="true" data-1p-ignore placeholder="Co potřebuješ najít? Například podpojištění..." aria-label="Hledat v hubu">
       <div id="none" class="hide">Nic se nenašlo. Zkus jiné slovo.</div>
     </div>
   </div>
@@ -312,13 +319,13 @@ details.ins li{white-space:pre-line}
         <div class="sp zac" data-s="splatnost platba pvzp"><b>PVZP</b><span class="chip">15 dní</span><span class="bs">od počátku pojištění</span><small>15 dnů od počátku pojištění</small></div>
         <div class="sp zac" data-s="splatnost platba allianz"><b>Allianz</b><span class="chip">15 dní</span><span class="bs">od počátku pojištění</span><small>15 dnů od počátku pojištění</small></div>
         <div class="sp zac" data-s="splatnost platba pillow"><b>Pillow</b><span class="chip">7 dní</span><span class="bs">od počátku pojištění</span><small>7 dnů od počátku pojištění</small></div>
-        <div class="sp zac" data-s="splatnost platba generali česká pojišťovna"><b>Generali Česká pojišťovna</b><span class="chip">0 dní</span><span class="bs">od počátku pojištění</span><small>v den počátku pojištění<br>⚠ ověřit: ve slidu Generali je jinde „1 den od počátku“</small></div>
+        <div class="sp zac" data-s="splatnost platba generali česká pojišťovna"><b>Generali Česká pojišťovna</b><span class="chip">0 dní</span><span class="bs">od počátku pojištění</span><small>v den počátku pojištění</small></div>
         <div class="sp zac" data-s="splatnost platba slavia"><b>Slavia</b><span class="chip">15 dní</span><span class="bs">od počátku pojištění</span><small>15 dnů od počátku pojištění</small></div>
         <div class="sp zac" data-s="splatnost platba uniqa"><b>UNIQA</b><span class="chip">0 dní</span><span class="bs">od počátku pojištění</span><small>v den počátku pojištění</small></div>
         <div class="sp uz" data-s="splatnost platba komerční pojišťovna kb"><b>Komerční pojišťovna</b><span class="chip">30 dní</span><span class="bs">od uzavření pojištění</span><small>30 dní od sjednání pojištění</small></div>
         <div class="sp uz" data-s="splatnost platba čpp"><b>ČPP</b><span class="chip">30 dní</span><span class="bs">od uzavření pojištění</span><small>30 dní od sjednání pojištění</small></div>
       </div>
-      <p class="grp" style="margin-top:28px">Kolik dní v roce musí být nemovitost obývaná</p>
+      <p class="grp" style="margin-top:28px">Kolik dní v roce musí být nemovitost obývaná</p><p class="dc-small">Obecně platí: půl roku a víc = trvalé bydlení, méně = rekreační objekt (ČAP uvádí u rekreačních objektů obvykle 90 až 180 dnů). U Pillow ověřeno v podmínkách: více než 9 měsíců v roce.</p>
       <div style="overflow-x:auto"><table class="tbl"><tbody><tr data-s="obývaná nemovitost rekreace direct"><td>Direct</td><td>Min. 180 dnů v roce</td></tr><tr data-s="obývaná nemovitost rekreace pvzp"><td>PVZP</td><td>Min. 183 dnů v roce</td></tr><tr data-s="obývaná nemovitost rekreace allianz"><td>Allianz</td><td>Min. 6 měsíců v roce</td></tr><tr data-s="obývaná nemovitost rekreace pillow"><td>Pillow</td><td>Min. 9 měsíců v roce</td></tr><tr data-s="obývaná nemovitost rekreace generali česká pojišťovna"><td>Generali Česká pojišťovna</td><td>Min. 180 dnů v roce</td></tr><tr data-s="obývaná nemovitost rekreace slavia"><td>Slavia</td><td>Min. 9 měsíců v roce</td></tr><tr data-s="obývaná nemovitost rekreace uniqa"><td>UNIQA</td><td>Min. 6 měsíců v roce</td></tr><tr data-s="obývaná nemovitost rekreace komerční pojišťovna"><td>Komerční pojišťovna</td><td>Min. 9 měsíců v roce</td></tr><tr data-s="obývaná nemovitost rekreace čpp"><td>ČPP</td><td>Je využívaná k celoročnímu pobytu</td></tr></tbody></table></div>
     </div>
 
@@ -336,9 +343,9 @@ details.ins li{white-space:pre-line}
           <thead><tr><th>Pojišťovna</th><th>Možnost výpovědi / poznámka</th><th>E-mail</th></tr></thead>
           <tbody>
             <tr data-s="výpověď e-mail email podatelna allianz"><td><b>Allianz</b></td><td>—</td><td class="copy-mail-cell"><div class="copy-mail" onclick="copyText('info@allianz.cz')">info@allianz.cz</div></td></tr>
-            <tr data-s="výpověď e-mail email podatelna pillow"><td><b>Pillow</b></td><td>lze vypovědět 14 před VD i k področní platbě</td><td class="copy-mail-cell"><div class="copy-mail" onclick="copyText('info@pillow.cz')">info@pillow.cz</div></td></tr>
+            <tr data-s="výpověď e-mail email podatelna pillow"><td><b>Pillow</b></td><td>lze vypovědět 14 dní před VD i k pololetní platbě</td><td class="copy-mail-cell"><div class="copy-mail" onclick="copyText('info@pillow.cz')">info@pillow.cz</div></td></tr>
             <tr data-s="výpověď e-mail email podatelna čpp"><td><b>ČPP</b></td><td>lze vypovědět telefonicky na čísle 957 444 555</td><td class="copy-mail-cell"><div class="copy-mail" onclick="copyText('info@cpp.cz')">info@cpp.cz</div></td></tr>
-            <tr data-s="výpověď e-mail email podatelna kooperativa"><td><b>Kooperativa</b></td><td>lze vypovědět k področní platbě</td><td class="copy-mail-cell"><div class="copy-mail" onclick="copyText('info@koop.cz')">info@koop.cz</div></td></tr>
+            <tr data-s="výpověď e-mail email podatelna kooperativa"><td><b>Kooperativa</b></td><td>lze vypovědět k pololetní platbě</td><td class="copy-mail-cell"><div class="copy-mail" onclick="copyText('info@koop.cz')">info@koop.cz</div></td></tr>
             <tr data-s="výpověď e-mail email podatelna čsob pojišťovna"><td><b>ČSOB Pojišťovna</b></td><td>—</td><td class="copy-mail-cell"><div class="copy-mail" onclick="copyText('info@csobpoj.cz')">info@csobpoj.cz</div></td></tr>
             <tr data-s="výpověď e-mail email podatelna pvzp"><td><b>PVZP</b></td><td>—</td><td class="copy-mail-cell"><div class="copy-mail" onclick="copyText('info@pvzp.cz')">info@pvzp.cz</div></td></tr>
             <tr data-s="výpověď e-mail email podatelna slavia"><td><b>Slavia</b></td><td>—</td><td class="copy-mail-cell"><div class="copy-mail" onclick="copyText('info@slavia-pojistovna.cz')">info@slavia-pojistovna.cz</div></td></tr>
@@ -370,12 +377,14 @@ details.ins li{white-space:pre-line}
     </div>
     <div id="tab-kalkulacka" class="tab-page">
       <h2>Kalkulačka podpojištění</h2>
-      <p class="sub">Rychlý výpočet orientační pojistné částky podle plochy a lokality (ceny za m² za rok 2025), abys měl při rozhovoru s klientem okamžitě představu.</p>
+      <p class="sub">Rychlý výpočet doporučené pojistné částky z plochy a ceny znovupostavení (nová cena). Tržní ceny z roku 2025 jsou jen pro orientaci.</p>
       <div class="calc-box" data-s="podpojištění kalkulačka výpočet hodnota stavby m2 metr čtvereční byt dům domácnost praha brno ostrava plzeň kraj lokalita">
-        <div class="calc-field"><label for="c-type">Lokalita a typ nemovitosti</label>
+        <div class="calc-field"><label for="c-type">Lokalita a typ (tržní ceny, jen informativně)</label>
           <select id="c-type"><optgroup label="Domácnost"><option value="8000">Domácnost (doporučeno cca 8 000 Kč/m²)</option></optgroup><optgroup label="Byty"><option value="138000">Byt – Praha (cca 138 000 Kč/m²)</option><option value="80000">Byt – okolí Prahy, Středočeský kraj (cca 80 000 Kč/m²)</option><option value="108000">Byt – Brno (cca 108 000 Kč/m²)</option><option value="70000">Byt – Plzeň a další krajská města (cca 70 000 Kč/m²)</option><option value="66000">Byt – Ostrava (cca 66 000 Kč/m²)</option><option value="50000">Byt – Ústecký a Karlovarský kraj (cca 50 000 Kč/m²)</option></optgroup><optgroup label="Domy"><option value="110500">Dům – Praha (cca 110 500 Kč/m²)</option><option value="75400">Dům – okolí Prahy, Středočeský kraj (cca 75 400 Kč/m²)</option><option value="66600">Dům – Brno a okolí, Jihomoravský kraj (cca 66 600 Kč/m²)</option><option value="46300">Dům – Jihočeský kraj (cca 46 300 Kč/m²)</option><option value="47500">Dům – ostatní kraje (cca 47 500 Kč/m²)</option></optgroup></select></div>
         <div class="calc-field"><label for="c-area">Užitná plocha (m²)</label><input type="number" id="c-area" placeholder="Zadej m² (např. 75)" value="75"></div>
+        <div class="calc-field" id="c-rb-wrap"><label for="c-rb">Cena znovupostavení za m² (nová cena)</label><input type="number" id="c-rb" value="50000"><small class="dc-small">Podle ní se počítá podpojištění, ne podle tržní ceny. Orientační hodnota, uprav podle zkušeností nebo pojišťovny.</small></div>
         <div class="calc-res">Doporučená pojistná částka pro zamezení podpojištění:<span class="val" id="c-res">0 Kč</span></div>
+        <p class="dc-small" id="c-mkt"></p>
         <p class="dc-small">Orientační ceny z veřejných zdrojů za rok 2025 (Maxima, Reality Vencovsky), zaokrouhlené. Hodnoty ověř a případně uprav.</p>
       </div>
     </div>
@@ -439,7 +448,8 @@ details.ins li{white-space:pre-line}
 <ul class="tl-say"><li>Po celý hovor jednej korektně a na úrovni, srozumitelně, bez zdrobnělin a slangu.</li><li>Neskákej do řeči a využij informace, které klient řekl.</li><li>Vždy nabídni pojištění a informuj o nutnosti ověřit údaje. Samotná cena nestačí.</li></ul><p class="tl-warn">🚫 KO −100 %: vulgarismy, pomlouvání konkurence, ignorování podmínek sjednání, úmyslné pochybení (výpověď pro neplacení, podpojištění, chybný počátek), nezávazný návrh smlouvy.</p><p class="tl-tip">Návrh smlouvy akceptujeme za OK pouze v případě, že klient řeší vinkulaci.</p></div></li>
       </ol>
     </div>
-    <div id="tab-sablony" class="tab-page">
+    <div id="tab-namietky" class="tab-page"><h2>Námitky klientů</h2><p class="sub">Návrhy odpovědí. Uprav je vlastními slovy a doplň, co vám funguje.</p><div style="display:grid;gap:12px"><details class="card obj" data-s="je to drahé / jinde mám levnější zeptej se, kde a za co přesně. porovnej stejný rozsah: pojistnou částku, spoluúčast a limity. levnější nabídka bývá s nižší pojistnou částkou nebo vyšší spoluúčastí. podívejme se, jestli máte stejné krytí. pokud existuje levnější produkt s podobným rozsahem, nezatajuj ho."><summary>„Je to drahé / jinde mám levnější“</summary><p class="say"><b>Co říct:</b> Zeptej se, kde a za co přesně. Porovnej stejný rozsah: pojistnou částku, spoluúčast a limity. „Levnější nabídka bývá s nižší pojistnou částkou nebo vyšší spoluúčastí. Podívejme se, jestli máte stejné krytí.“</p><p class="tip">⚠ Pokud existuje levnější produkt s podobným rozsahem, nezatajuj ho.</p></details><details class="card obj" data-s="rozmyslím si to / pošlete mi to e-mailem rozumím. nabídka je připravená a údaje máme ověřené. co přesně si potřebujete rozmyslet? pokud jde o cenu, vrať se k rozsahu krytí. pokud o čas, nabídni uzavření hned. když klient stále odmítá: domluv konkrétní den (nejvýš následující) a zapiš ho do kalendáře."><summary>„Rozmyslím si to / pošlete mi to e-mailem“</summary><p class="say"><b>Co říct:</b> „Rozumím. Nabídka je připravená a údaje máme ověřené. Co přesně si potřebujete rozmyslet?“ Pokud jde o cenu, vrať se k rozsahu krytí. Pokud o čas, nabídni uzavření hned.</p><p class="tip">⚠ Když klient stále odmítá: domluv konkrétní den (nejvýš následující) a zapiš ho do kalendáře.</p></details><details class="card obj" data-s="už mám pojištění (přes banku / jinde) zeptej se na pojišťovnu, cenu, rozsah a výročí. i když pojištění máte, můžeme porovnat, jestli za stejnou cenu nemůžete mít víc. u hypotéky vysvětli, že vinkulace zůstává a banka dostane potvrzení. výpověď původního pojištění: 6 týdnů před výročím / do 2 měsíců od sjednání."><summary>„Už mám pojištění (přes banku / jinde)“</summary><p class="say"><b>Co říct:</b> Zeptej se na pojišťovnu, cenu, rozsah a výročí. „I když pojištění máte, můžeme porovnat, jestli za stejnou cenu nemůžete mít víc.“ U hypotéky vysvětli, že vinkulace zůstává a banka dostane potvrzení.</p><p class="tip">⚠ Výpověď původního pojištění: 6 týdnů před výročím / do 2 měsíců od sjednání.</p></details><details class="card obj" data-s="domácnost nepotřebuji, stačí nemovitost nemovitost kryje stavbu, domácnost vše uvnitř: nábytek, elektroniku, oblečení. při požáru nebo vytopení je to často velká část škody. zeptej se, co by klient musel koupit znovu. u nemovitosti k pronájmu domácnost nehodnotíme."><summary>„Domácnost nepotřebuji, stačí nemovitost“</summary><p class="say"><b>Co říct:</b> „Nemovitost kryje stavbu, domácnost vše uvnitř: nábytek, elektroniku, oblečení. Při požáru nebo vytopení je to často velká část škody.“ Zeptej se, co by klient musel koupit znovu.</p><p class="tip">⚠ U nemovitosti k pronájmu domácnost nehodnotíme.</p></details><details class="card obj" data-s="nechci připojištění nenabízej je seznamem. vyber 1 – 2 podle situace a vysvětli na příkladu: když vám zateče soused, odpovědnost zaplatí pojišťovna. zeptej se, které riziko by klient nechtěl nést sám. každé připojištění je třeba korektně představit, i když ho klient odmítne."><summary>„Nechci připojištění“</summary><p class="say"><b>Co říct:</b> Nenabízej je seznamem. Vyber 1 – 2 podle situace a vysvětli na příkladu: „Když vám zateče soused, odpovědnost zaplatí pojišťovna.“ Zeptej se, které riziko by klient nechtěl nést sám.</p><p class="tip">⚠ Každé připojištění je třeba korektně představit, i když ho klient odmítne.</p></details><details class="card obj" data-s="zaplatím později pojištění platí od počátku, ale pojistné je třeba uhradit v lhůtě pojišťovny, jinak pojištění zanikne. doporučujeme do 5 dnů, ať na to nezapomenete. doporuč platbu kartou: je nejrychlejší a složenky nezasíláme. při počátku v den exportu je platba obratem nutná. nenabízej hned odložení platby. zmiň soutěž (platba do 2 dnů)."><summary>„Zaplatím později“</summary><p class="say"><b>Co říct:</b> „Pojištění platí od počátku, ale pojistné je třeba uhradit v lhůtě pojišťovny, jinak pojištění zanikne. Doporučujeme do 5 dnů, ať na to nezapomenete.“ Doporuč platbu kartou: je nejrychlejší a složenky nezasíláme.</p><p class="tip">⚠ Při počátku v den exportu je platba obratem nutná. Nenabízej hned odložení platby. Zmiň soutěž (platba do 2 dnů).</p></details><details class="card obj" data-s="proč tak vysoká pojistná částka? pojistná částka má odpovídat ceně, za kterou by se stavba dnes postavila znovu, ne prodejní ceně. když je nižší, pojišťovna při škodě krátí plnění. podpojištění nezatajuj ani nesnižuj kvůli ceně."><summary>„Proč tak vysoká pojistná částka?“</summary><p class="say"><b>Co říct:</b> „Pojistná částka má odpovídat ceně, za kterou by se stavba dnes postavila znovu, ne prodejní ceně. Když je nižší, pojišťovna při škodě krátí plnění.“</p><p class="tip">⚠ Podpojištění nezatajuj ani nesnižuj kvůli ceně.</p></details><details class="card obj" data-s="zavolejte později, teď nemám čas rozumím. nabídka je připravená, zabere to pár minut. hodí se vám dnes později, nebo zítra? domluvme si přesný čas. domluvený čas zapiš do kalendáře i do poznámky."><summary>„Zavolejte později, teď nemám čas“</summary><p class="say"><b>Co říct:</b> „Rozumím. Nabídka je připravená, zabere to pár minut. Hodí se vám dnes později, nebo zítra? Domluvme si přesný čas.“</p><p class="tip">⚠ Domluvený čas zapiš do kalendáře i do poznámky.</p></details></div></div>
+<div id="tab-sablony" class="tab-page">
       <h2>Šablony zpráv</h2>
       <p class="sub">Klikni na Kopírovat a vlož text do e-mailu. Nepiš sem údaje zákazníků.</p>
       <div class="tpl-list">
@@ -478,14 +488,97 @@ S pozdravem</div></div>
         <input type="search" id="ins-q" placeholder="Hledej v pojišťovnách, např. krádež kola, vodovodní škoda…" aria-label="Hledat v pojišťovnách">
         <div class="ins-chips" id="ins-chips"></div>
         <p class="dc-small" id="ins-sum"></p>
-      </div><div style="display:grid;gap:12px"><details class="card ins" data-s="pojišťovna direct"><summary><h3 style="display:inline">Direct</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>DIRECT Pojišťovna, a.s. působí na českém trhu roku 2015. Jedná se o univerzální neživotní pojišťovnu, která klade důraz na jednoduché a srozumitelné produkty a služby, spolehlivý a přátelský přístup.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Výpověď i mimo výročí (bez sankce)</li><li>Rychlost větru už od 50 km/h</li><li>Super poměr cena/výkon u odpovědnosti</li><li>Bez navýšení u področní splátky</li><li>Modulární pojištění - lze upravovat</li><li>Asistence vždy v ceně (zámečník - všechny dveře, vrata, brány - včetně drobného materiálu , nově i FVE - včetně drobného materiálu )</li><li>Možnost nulové spoluúčasti</li><li>Proplácí náklady na uniklou vodu</li><li>Uhradí i zatečení vody přes mikroventilaci</li><li>Jednoduché pojistné podmínky</li><li>Limity automaticky nastaveny do hodnoty DOM/NEM</li><li>Pojištění odpovědnosti pro všechny členy domácnosti - celá Evropa (vztahuje se na místo pojištění - jako jediná pojišťovna z nabídky)</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Prodloužená záruka</li><li>Sportovní vybavení (Kryje základní rizika, odcizení, vandalismus a dopravní a jinou nehodu. Pojištění se vztahuje na sportovní potřeby, nosiče a boxy pro přepravu a platí na území Evropy a Turecka (s výjimkou Ruska a Běloruska). Zahrnuje jízdní kola, elektrokola, motokola, přípojné vozíky za kola, koloběžky, elektrokoloběžky, lyže, snowboardy, brusle, tenisové rakety, golfové hole apod.; horolezeckou a potápěčskou výstroj, cvičební stroje, přilby, chrániče a jiné ochranné pomůcky; obuv, batohy, bagy nebo ochranné obaly, které jsou určené k provozování sportovní činnosti, např. neopren, lyžařská obuv; a další obdobné sportovní vybavení sloužící pro amatérský sport, které vlastníte a které nevyužíváte k podnikání nebo jiné výdělečné činnosti.
+      </div><div style="display:grid;gap:12px"><details class="card ins" data-s="pojišťovna direct"><summary><h3 style="display:inline">Direct</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>DIRECT Pojišťovna, a.s. působí na českém trhu roku 2015. Jedná se o univerzální neživotní pojišťovnu, která klade důraz na jednoduché a srozumitelné produkty a služby, spolehlivý a přátelský přístup.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Výpověď i mimo výročí (bez sankce)</li><li>Rychlost větru už od 50 km/h</li><li>Super poměr cena/výkon u odpovědnosti</li><li>Bez navýšení u pololetní splátky</li><li>Modulární pojištění - lze upravovat</li><li>Asistence vždy v ceně (zámečník - všechny dveře, vrata, brány - včetně drobného materiálu , nově i FVE - včetně drobného materiálu )</li><li>Možnost nulové spoluúčasti</li><li>Proplácí náklady na uniklou vodu</li><li>Uhradí i zatečení vody přes mikroventilaci</li><li>Jednoduché pojistné podmínky</li><li>Limity automaticky nastaveny do hodnoty DOM/NEM</li><li>Pojištění odpovědnosti pro všechny členy domácnosti - celá Evropa (vztahuje se na místo pojištění - jako jediná pojišťovna z nabídky)</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Prodloužená záruka</li><li>Sportovní vybavení (Kryje základní rizika, odcizení, vandalismus a dopravní a jinou nehodu. Pojištění se vztahuje na sportovní potřeby, nosiče a boxy pro přepravu a platí na území Evropy a Turecka (s výjimkou Ruska a Běloruska). Zahrnuje jízdní kola, elektrokola, motokola, přípojné vozíky za kola, koloběžky, elektrokoloběžky, lyže, snowboardy, brusle, tenisové rakety, golfové hole apod.; horolezeckou a potápěčskou výstroj, cvičební stroje, přilby, chrániče a jiné ochranné pomůcky; obuv, batohy, bagy nebo ochranné obaly, které jsou určené k provozování sportovní činnosti, např. neopren, lyžařská obuv; a další obdobné sportovní vybavení sloužící pro amatérský sport, které vlastníte a které nevyužíváte k podnikání nebo jiné výdělečné činnosti.
 Pokud má některé ze sportovního vybavení pořizovací cenu nad 50 000 Kč, v dalším kroku specifikujte konkrétní typ a značku společně s bližší specifikací.</li><li>Estetická oprava</li><li>Havárie rozvodů elektro a plynu</li><li>Pojištění ztráty nájmu</li><li>Rozšířenou asistenci</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Pojištění majetku a odpovědnosti</li><li>Jen základ</li><li>Zlatá střední</li><li>Pro fajnšmekry</li></ul><p class="grp" style="margin:14px 0 6px">Limity plnění</p><ul class="tl-say"><li>NEMOVITOST - 20.000.000,- Kč</li><li>DOMÁCNOST - 8.000.000,-  Kč</li></ul><p class="grp" style="margin:14px 0 6px">Co nelze pojistit u rekreační nem</p><ul class="tl-say"><li>Pojištění odpovědnosti z vlastnictví nemovitosti, občanské odpovědnosti</li><li>Zatečení atmosférických srážek</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba = 7 dnů od počátku pojištění
-Kdy jako rekreace = MIN. 3 MĚSÍCE V ROCE
+Trvale obývaná = min. 180 dnů v roce, méně = rekreační objekt
 Automatická valorizace = ANO</li><li>Pojistíme i cizince bez RČ (např. 895921/0000)</li><li>Karenční doba je 10 dnů od sjednání na spodní vodu, pravidelnou záplavou, zatečení atmosférických srážek, povodně, vzlínání vody, domy ve vodě (na vodních tocích a v jejich korytech).</li><li>*Možné pojistit budovu určenou k podnikání až do 49% užitné plochy</li><li>*Pojištění vybavení i stavby sjednáváme na nové ceny</li><li>*Sprejerství a kouř – vandalismus
 *Pojištění lze vypovědět bez udání důvodu kdykoliv  -  není 6ti týdenní výpovědní lhůta</li><li>POZOR - Dům je dvougenerační:</li><li>přízemí → rodiče (jejich nábytek, TV, spotřebiče)</li><li>patro → děti (jejich vybavení)</li><li>V takové situaci je správné nastavení:</li><li>🏠 1× pojištění nemovitosti (dům)</li><li>🛋 2× pojištění domácnosti</li><li>domácnost rodičů</li><li>domácnost dětí
 Jedno pojištění domácnosti stačí, pokud:</li><li>všichni tvoří jednu společnou domácnost</li><li>věci nejsou oddělené (např. společná kuchyň, vybavení, finance)
 
-Proč to pojišťovna řeší</li><li>Při škodě (např. požár, vytopení) se řeší:</li><li>komu patří zničené věci</li><li>do jaké domácnosti spadají</li><li>Když jsou dvě rodiny a jen jedno pojištění, může vzniknout problém s plněním.</li><li>✅ Proto se u dvougeneračních domů většinou dělá dvě domácnosti na jedné adrese.</li></ul></details><details class="card ins" data-s="pojišťovna slavia"><summary><h3 style="display:inline">Slavia</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Základy pojišťovny byly položeny již v roce 1868. Významný milník v životě pojišťovny představuje její vstup do silné finanční Skupiny SP Group, jejíž součástí se stala v dubnu 2006. Nový majitel Capital Management Company, a.s. - člen skupiny SP Group, je společnost s dlouholetým a velmi úspěšným fungováním na pojistném trhu v České republice.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Cena</li><li>Sleva 25% na budovy ve výstavbě</li><li>Pojištění staveb v ceně (do 200.000 tisíc)</li><li>Pojištění věcí v autě na kole či od zaměstnavatele</li><li>Možnost slevy za propojištěnost  vyplníte číslo již existující klientovy smlouvy u Slavie. VZTAHUJE SE POUZE NA AKTIVNÍ SMLOUVY A NIKOLIV SMLOUVY, KTERÉ NEBUDOU AKTIVNÍ I DO BUDOUCNA</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Věci v garáži na jiné adrese</li><li>Věci na koleji</li><li>Věci na zahradě, na dvoře -  v případě vichřice musí být zahradní nábytek řádně ukotven, jinak pojišťovna nebude plnit!</li><li>Skleník včetně skla  (balíček JUBILEUM)</li><li>Hroby</li><li>Připojištění Talisman – kryje rizika, která kryje jiná pojišťovna, ale Slavia ne, pouze pokud nejde o výluku u Slavie. Klient musí doložit pojistné podmínky konkurenční pojišťovny. Limit plnění u NEM  max 5% z pojistné částky a u DOM max 10% z pojistné částky.</li><li>Rozšířené odpovědnosti dle balíčků (JISTOTA, JUBILEUM) - nově odpovědnost až do 40.000.000 Kč</li><li>Základní asistence - telefonická asistence, zprostředkování odchytu včelích rojů a likvidace vos a sršňů, asistence Jistota 7.000,- Kč/neomezeně - telefonická asistence a poradenství, zprostředkování odchytu včelích rojů a likvidace vos a sršňů, úhrada příjezdu technické pomoci a nákladů potřebných k odstranění havarijního stavu, oprava spotřebičů, IT konzultace po telefonu a vzdálené připojení technika, asistence Jubileum 10.000,- Kč/neomezeně - telefonická asistence a poradenství, zprostředkování odchytu včelích rojů a likvidace vos a sršňů, úhrada příjezdu technické pomoci a nákladů potřebných  k odstranění havarijního stavu, oprava spotřebičů, IT konzultace po telefonu a vzdálené připojení technika, právní konzultace po telefonu,  služby advokáta, názor druhého lékaře</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Základ</li><li>Jistota</li><li>Jubileum</li></ul><p class="grp" style="margin:14px 0 6px">Limity plnění</p><ul class="tl-say"><li>NEMOVITOST - 30.000.000,- Kč</li><li>DOMÁCNOST - 5.000.000,- Kč</li></ul><p class="grp" style="margin:14px 0 6px">Co nelze pojistit</p><ul class="tl-say"><li>U rozestavěné stavby nejde pojistit odpovědností pojistku ani pojištění domácnosti.</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba = 15 dnů od počátku pojištění</li><li>Kdy jako rekreace = MIN. 3 MĚSÍCE V ROCE</li><li>Automatická valorizace – NE</li><li>Pojištění pro případ působení pojistného nebezpečí vichřice, krupobití, povodeň a záplava se sjednává s čekací dobou v délce 10 dnů ode dne uzavření pojistné smlouvy!</li><li>*Možné pojistit budovu určenou k podnikání až do 50% užitné plochy.</li><li>*V roční splátce nejvýhodnější cena</li><li>*Pojištění ztráty vody do 100.000,- Kč DOM+NEM</li><li>*Technická porucha (Jubileum) 150.000,- Kč</li><li>*Pojištění kola mimo místo pojištění - krádež kola kdekoliv v ČR, musí být pevně uzamčeno + fotodokumentace místa,</li><li>nutné hlášení Policii ČR. Limit do 50.000,- Kč</li></ul></details><details class="card ins" data-s="pojišťovna čpp"><summary><h3 style="display:inline">ČPP</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Česká podnikatelská pojišťovna je součástí skupiny Vienna Insurance Group. Jde o předního specialistu na pojištění v Rakousku a ve střední a východní Evropě. Kolem 50 společností ve 25 zemích tvoří koncern s dlouhou tradicí, silnými značkami a velkou blízkostí klientům.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Někdy cena</li><li>Pojištění odpovědnosti - děti do 26 let - vlastní i nevlastní (partnerovo), příbuzné v přímé linii  nebo v domácnosti vypomáhající</li><li>Vlastnictví a používání zbraní</li><li>Pojištění kola v celé ČR (dle vybraného balíčku - 20tis./50tis./100tis. v místě pojištění/na kusy, 5tis./50tis./100tis. kdekoliv v ČR/pojistný rok)</li><li>Pojistíme také škodu způsobenou hlodavcem (okus kuny) pod střechou</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Rozšířená asistence Domácnost plus (V jednom pojistném roce: 3x asistovaná událost - 15.000 Kč na jeden zásah)</li><li>Asistenční službu zajišťuje Global Assistance na lince 1220. Dostupnost 24/7</li><li>Náhrada újmy na mobilním telefonu, notebooku či tabletu</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Mini</li><li>Opti</li><li>Maxi</li></ul><p class="grp" style="margin:14px 0 6px">Limity plnění</p><ul class="tl-say"><li>NEMOVITOST - 30.000.000,-  Kč</li><li>DOMÁCNOST - 7.500.000,-  Kč</li><li>NEMOVITOST - 30.000.000,-  Kč</li><li>DOMÁCNOST - 7.500.000,-  Kč</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba = 30 dnů od sjednání pojištění</li><li>Kdy jako rekreace = je využívaná k celoročnímu pobytu</li><li>Automatická valorizace – ANO</li><li>Pojištění povodně a záplavy se sjednává se spoluúčastí ve výši 1 % z celkové výše pojistného plnění,  min. však 10.000,-  Kč. Čekací doba pro povodeň/ záplava je 10 dní od uzavření smlouvy.</li><li>*Pojištění je poskytováno se vstupním bonusem ve výši 30%. Dojde-li k vyplacení pojistného plnění, sníží pojistitel</li><li>poskytovanou výši bonusu o 5% za každou pojistnou událost.</li><li>*Sleva 6% za roční frekvenci placení a 4% za pololetní.</li><li>*Sleva za propojištěnost až 10 % (DOM+NEM+ODP).</li><li>*Možné pojistit budovu určenou k podnikání až do 50% užitné plochy</li><li>Zrušením pojistné smlouvy u ČPP v průběhu roku (nikoliv výpověď 6 týdnů před výročím!), pojišťovna vždy zruší pouze pojištění DOM či NEM dle ukončení nájmu, ale odpovědnostní pojištění se mu vždy</li><li>zruší až k výročí!!!</li></ul></details><details class="card ins" data-s="pojišťovna uniqa"><summary><h3 style="display:inline">UNIQA</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>UNIQA pojišťovna, a.s. je univerzální pojišťovna sídlící v Praze. Je dceřinou společností rakouské pojišťovací skupiny UNIQA Insurance Group. Byla založena jako „Česko-rakouská pojišťovna“. Pojišťovací činnost zahájila 1. 7. 1993.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Žolík - v balíčku EXTRA</li><li>Kutil</li><li>Kombinace DOM+NEM</li><li>Revize nových spotřebičů v asistencích</li><li>Vedlejší stavby jsou automaticky pojištěný spolu s hlavní (10% z PČ MINI+PLUS/ 25% EXTRA), při vyšších hodnotách doporučeno pojistit zvlášť (u trvale obývané stavby)</li><li>Pojištění jízdního kola (Evropa) - LIMIT AŽ 55.000 tis.</li><li>Krádež mimo domov, loupež, odcizení z domu, sklepa, balkonu atd.</li><li>Pojištění odpovědnosti pronajímatele (škody třetím osobám i nájemci)</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Pojištění klíšťové encefalitidy</li><li>Pojištění úrazu “Kutil” (Pojištění se sjednává pro případ vzniku trvalých následků úrazu s celkovým hodnocením nad 10 %. Pojistnou událostí je úraz pojištěného, tj. např. neočekávané a náhlé poškození zdraví v důsledku působení vnějších sil nebo vlastní tělesné síly, vymknutí kloubu, přetržení nebo natržení svalů, šlach, vazů nebo pouzder, tělesná poškození způsobená popálením, opařením, působením úderu blesku, elektrickým proudem, plyny nebo parami, požitím jedovatých nebo leptavých látek, nákazu tetanem nebo vzteklinou při úrazu)</li><li>Meteo UNIQA - Služba je dostupná zdarma. Díky Meteo UNIQA získáte přesné varování před blížícími se extrémními výkyvy počasí</li><li>Rodinná právní asistence</li><li>Cyklo asistence</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Mini</li><li>Plus</li><li>Extra</li><li>Individual</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - 25.000.000,-  Kč</li><li>DOMÁCNOST - 5.000.000,-  Kč</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba - v den počátku pojištění</li><li>Kdy jako rekreace – MIN. 6 MĚSÍCŮ V ROCE</li><li>Automatická valorizace – ANO</li><li>Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění.</li><li>*Možné pojistit budovu určenou k podnikání až do 49% užitné plochy</li><li>*U DOM a NEM může být rozdílná spoluúčast.</li><li>ŽOLÍK STAVBA - (dorovnání nabídky konkurence), náklady na vyčištění studny, poškození porostů a zahradní architektury, havárie rozvodů vody, energií a odpadu, ztráta nájemného, navýšení limitu pro ostatní vedlejší stavby, navýšení limitu pro odklízecí a bourací náklady.</li><li>ŽOLÍK DOMÁCNOST - (dorovnání nabídky konkurence), poškození náhrobků a hřbitovních pomníků, náklady na ošetření domácího mazlíčka (úraz), navýšení limitu pro odklízecí a bourací náklady.</li></ul></details><details class="card ins" data-s="pojišťovna allianz"><summary><h3 style="display:inline">Allianz</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Allianz pojišťovna, a.s. je součástí koncernu Allianz Group, založeného v roce 1890. Skupina sídlí v německém Mnichově, celosvětově zaměstnává zhruba 140 tisíc zaměstnanců a působí ve více než 70 zemích. Pojišťuje soukromé osoby, firmy i podnikatele. Česká Allianz pojišťovna vznikla v roce 1993.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Odpovědnost z občanského života v ceně - vztahuje se na členy domácnosti a hospodářská zvířata</li><li>Odpovědnost v rámci celé Evropy</li><li>Balíčky jsou jasné</li><li>Mobilheimy</li><li>Věrnostní sleva (3x7%)</li><li>Povodně a záplavy v každém balíčku</li><li>Možnost měsíční platby</li><li>Proplácí předměty v nové ceně</li><li>Garáž do 500 m v ceně</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Věci mimo domov (věci v autě i střešní box, věci v ubytovacím zařízení (hotel, šatna v divadle, čekárna u lékaře…)</li><li>Zahrada (věci a porosty)</li><li>Zemětřesení (Toto dobrovolné připojištění kryje škody na pojištěném majetku způsobenými zemětřesením (otřesy zemského povrchu vyvolané geofyzikálními procesy v zemském nitru.). Musí se předložit důkaz o tom, že zemětřesení dosáhlo v místě pojištění minimálně 6. stupně makroseismické stupnice EMS 98, popř. 5. stupně Richterovy stupnice.)</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Komfort</li><li>Extra</li><li>Max</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - INDIVIDUÁLNÍ (zabezpečení!)</li><li>DOMÁCNOST - INDIVIDUÁLNÍ (zabezpečení!)</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba -15 dnů od počátku pojištění</li><li>Kdy jako rekreace – MIN. 6 MĚSÍCŮ V ROCE</li><li>Automatická valorizace – ANO</li><li>Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění.</li><li>*Možné pojistit budovu určenou k podnikání až do 60% užitné plochy</li><li>*Může se hradit v měsíčních splátkách</li><li>POZOR!!!</li><li>U POJIŠTĚNÍ ZTRÁTY VODY NEHRADÍ ŠKODY V PŘÍPADĚ POJIŠTĚNÍ PŘECHODNĚ OBÝVANÉ BUDOVY</li></ul></details><details class="card ins" data-s="pojišťovna pillow"><summary><h3 style="display:inline">Pillow</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Pojišťovna Pillow je česká pojišťovna s licencí České národní banky k provozování neživotního pojištění.  Byla založena 15. července 2015 pod názvem První klubová pojišťovna, pilotní provoz spustila 21. září 2015 a ostrý provoz začal 22. března 2016.[1] K přejmenování na Pillow pojišťovnu došlo v roce 2019 a předcházela mu změna akcionářské struktury a statutárních orgánů dne 31. října 2019.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Výpověď i 14 dní před výročním dnem</li><li>Modulární pojištění - lze upravovat + Mobilheim (připevnění na zemních vrutech nebo betonových patkách)</li><li>Pojistí ateliér, studio (uveden jako byt - nenahlíží do katastru)</li><li>Strojní pojištění - allrisk na soláry</li><li>Umí AirBnB</li><li>Pojištění odpovědnosti až 50.000.000 Kč (dle tarifu ČR nebo celá Evropa), pro členy domácnosti, děti do 26 let studující, osoby pečující o domácnost a zvířata</li><li>Odpovědnost držení zbraně</li><li>Věci pronajaté či zapůjčené</li><li>Uhradí i zatečení vody přes mikroventilaci</li><li>Spoluúčast je vždy na pojistnou událost</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Ztráta nájmu - až 12 měsíců</li><li>Deratizace a dezinsekce</li><li>Oprava domácích spotřebičů a zdrojů tepla (v limitu 7.000,-  Kč za zásah / 2x ročně, včetně náhradních dílů: zajistí opravu spotřebiče a uhrazení práce opraváře, stejně tak drobný materiál vč. celých náhradních dílů, pokud byl zakoupený jako nový v ČR nejpozději před 5 lety (7 lety pro zdroje tepla), pokud závada brání jeho používání)</li><li>Skla a sanita – 100.000 Kč (limit lze nastavit až do pojistného limitu)</li><li>Pojištění věcí na zahradě</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Pojištění majetku</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - INDIVIDUÁLNÍ</li><li>DOMÁCNOST - INDIVIDUÁLNÍ</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba -7 dnů od počátku pojištění</li><li>Kdy jako rekreace – MIN. 3 MĚSÍCE V ROCE</li><li>Automatická valorizace – ANO</li><li>Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění.</li><li>*Možné pojistit budovu určenou k podnikání až do 40 % užitné plochy</li><li>*Může se hradit v měsíčních splátkách</li><li>*Hotovost do 25.000 Kč</li><li>*Vybavení staveniště (krádež) do 100.000 Kč</li><li>*Věci zvláštní hodnoty a cennosti 50% z pojistné částky domácnosti</li><li>*Věci v nebytovém prostoru 20% z poj. domácnosti</li></ul></details><details class="card ins" data-s="pojišťovna pvzp"><summary><h3 style="display:inline">PVZP</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Pojišťovna VZP, a.s. (PVZP) je univerzální neživotní pojišťovna, dceřiná společnost Všeobecné zdravotní pojišťovny České republiky (VZP ČR). Od založení roku 1994 byla součástí VZP ČR, po vstupu Česka do Evropské unie v roce 2004 působí samostatně. V současnosti patří mezi nejrychleji rostoucí členy České asociace pojišťoven.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Cena</li><li>Nekomplikované balíčky</li><li>Neuplatňuje podpojištění - nekrátí plnění</li><li>Na povodeň 0% spoluúčast</li><li>Technická asistence (lze využít až na 5 zásahů ročně v celkové hodnotě až 10 tisíc)</li><li>Zvýhodňuje propojištěnost</li><li>Cennosti, věci zvláštní hodnoty a věci v nebytovém prostoru v ceně dle balíčku</li><li>Odpovědnost kryje i nájemníka pro sousedy (nezaplatí poškození věcí majitele)</li><li>Benefit (dorovnání pojistného plnění dle rozsahu jiného pojistitele v ČR, platí od 2. pojistného roku za předpokladu bezeškodního předchozího pojistného období, limit 50.000 Kč v balíčku Maxi, Standard limit 10.000,- Kč).</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Povodeň nebo záplava</li><li>Rozšířená odpovědnost na Svět</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Standard</li><li>Maxi</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST-25.000.000,- Kč</li><li>DOMÁCNOST - 8.000.000,- Kč</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba - 15 dnů od počátku pojištění</li><li>Kdy jako rekreace – MIN. 182 DNŮ V ROCE</li><li>Automatická valorizace - ANO</li><li>*Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění</li><li>*Cennosti, věci zvláštní hodnoty a věci v nebytovém prostoru v balíčku Maxi 40% z PČ domácnosti</li><li>*Možné pojistit budovu určenou k podnikání až do 50 % užitné plochy</li><li>*V balíčku Standard – hrazeno v časové ceně, v balíčku Maxi v ceně nové</li></ul></details><details class="card ins" data-s="pojišťovna komerční pojišťovna"><summary><h3 style="display:inline">Komerční pojišťovna</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Komerční pojišťovna, a.s., (KB Pojišťovna) je univerzální pojišťovnou působící na českém trhu. Vznikla v roce 1995. Od roku 2001, kdy francouzská obchodní banka Société Générale vstoupila do Komerční banky, úzce spolupracuje se společnostmi náležejícími do skupiny KB, potažmo Société Générale. Do této skupiny dále náleží společnost ESSOX, Modrá pyramida stavební spořitelna, a.s., nebo Penzijní společnost Komerční banky, a.s.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Nevadí zhodnocení stavby (fotovoltaika, tepelné čerpadlo apod.)</li><li>Úhrada celých splátek úvěru po dobu až 12 měsíců (pokud je poškození nemovitosti v rozsahu 20% hodnoty nemovitosti nebo větší)</li><li>Náhradní ubytování po dobu až 12 měsíců (nemovitost po pojistné události neobyvatelná)</li><li>Pojištění Odpovědnosti je bez spoluúčastí a bez limitů na elektroniku aj.</li><li>Odpovědnost na všechny členy žijící v domácnosti - věk není omezený</li><li>Odpovědnost se vztahuje i na domácí a hospodářská zvířata (není omezen počet)</li><li>Odpovědnost na všechny nemovitosti ve vlastnictví v ČR</li><li>Fotovoltaika je automaticky v hlavní stavbě, i když jí majitel pořídí později</li><li>Vše je pojištěno na novou cenu kromě ztráty vody</li><li>Pojistíme i družstevní podílové vlastnictví</li><li>Nemovitost nelze podpojistit</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Rozdílové pojištění GAP (Pokud máte v okamžiku sjednání pojištění obdobné pojištění u jiného pojistitele, můžete si k tomuto pojištění sjednat tzv. rozdílové pojištění, na základě kterého vám v případě pojistné události podle tohoto pojištění uhradí Komerční pojišťovna rozdíl, o který pojistné plnění ze sjednaného pojištění převyšuje pojistné plnění z vašeho původního pojištění. Tento rozdíl však uhradí pouze v případě, že vznikl v důsledku aplikace výluky nebo nižšího limitu jiným pojistitelem či proto, že dané pojistné nebezpečí v rámci původního pojištění nebylo pojištěno.)</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Klasik</li><li>Komfort</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - BEZ LIMITU</li><li>DOMÁCNOST - BEZ LIMITU</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba – 30 dnů od sjednání</li><li>Kdy jako rekreace – MIN. 3 MĚSÍCE</li><li>Automatická valorizace – ANO</li><li>*Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění</li><li>*Pojišťuje se na plochu nemovitosti, ne hodnoty!</li><li>*Pokud se bydlí nad garáží , patří vždy k hlavní stavbě</li><li>*U podkroví beru jen vnitřní plochu (odpočítám 10% od plochy)</li><li>*Vedlejší stavby se uvádějí v m2, nemusí se vypisovat</li><li>*Možné pojistit budovu určenou k podnikání až do 50 % užitné plochy</li><li>*Možnost měsíční platby</li></ul></details><details class="card ins" data-s="pojišťovna generali česká pojišťovna"><summary><h3 style="display:inline">Generali Česká pojišťovna</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Generali Česká pojišťovna a.s. (dříve Česká pojišťovna a.s.) je univerzální pojišťovnou s dlouholetou tradicí v životním i neživotním pojištění. Významným mezníkem bylo znárodnění pojišťoven v roce 1948, které vedlo k vytvoření Československé pojišťovny. V roce 2019 měla tři miliony klientů, spravovala více než sedm milionů pojistných smluv a její tržní podíl na domácím trhu dosahoval 21,5 %.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>I starší věci v domácnosti proplatíme, jako by byly nové</li><li>Pojistíme zahradní techniku, sportovní vybavení, hudební nástroje i elektroniku</li><li>Nemusíte čekat, než svůj domov dostavíte. Pojistěte jej už při výstavbě</li><li>Vyzkoušejte novou mobilní aplikaci Moje Generali</li><li>Technická porucha – do 10 let - NOVÁ CENA do PČ, nad 10 let - ČASOVÁ CENA</li><li>Tržní cena - neuplatňuje podpojištění</li><li>RD –4 bytové jednotky</li><li>Estetické škody (stavební součásti) do 100.000,- Kč (poškození sám sobě - rám okna, nabouraná garážová vrata, nabobtnalá linka od vína. Úhrada materiálu...apod.</li><li>Přesjednání během roku u GČP - musí být navýšení víc než 10% z PČ (výpověď z důvodu náhrady přes BO)</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Sportovní potřeby - aktiv - pojistíme vybavení, které využíváte pro rekreační sporty, např. jízdní kola, lyžařské vybavení, golfové bagy, oděvy, boty, batohy, chytré hodinky, elektrokola, cyklonavigace a elektrokoloběžky, které nepodléhají povinnosti mít povinné ručení až do výše 100.000,- Kč.</li><li>Zahradní technika -  zahradní traktory, sekačky, kultivátory nebo sněžné frézy. Pojistíme ji proti krádeži, poškození či zničení až do limitu 100.000,- Kč.</li><li>Přenosná elektronika - počítač, tablet, mobil, fotoaparát nebo jinou přenosnou elektroniku pojištěnou i mimo domov. V případě poškození či zničení jste chráněni až do limitu 15.000,- Kč.</li><li>ODPOVĚDNOST - běžný občanský život a odpovědnost ze všech nemovitostí</li><li>Pojištění MAZLÍČEK (pes, kočka), léčebné výlohy až do 120.000,- Kč, stáří až do 10 let, možnost pojistit i nepapírová zvířata (3 balíčky START, STANDARD, EXLUSIVE)</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Start</li><li>Standard</li><li>Exlusive</li><li>All risk</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - není pevně stanovena</li><li>DOMÁCNOST - není pevně stanovena</li><li>VEDLEJŠÍ STAVBY - 15%Z PČ, MAXIMÁLNĚ DO 5. MIL</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba - 1 den od počátku pojištění</li><li>Kdy jako rekreace – do 180 dnů v roce</li><li>Automatická valorizace – ANO</li><li>*Nebytový prostor = není průchozí z domu!</li><li>*Možnost měsíční platby</li><li>*Možné pojistit budovu určenou k podnikání až do 50 % užitné plochy</li><li>*Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění</li></ul></details></div></div>
+Proč to pojišťovna řeší</li><li>Při škodě (např. požár, vytopení) se řeší:</li><li>komu patří zničené věci</li><li>do jaké domácnosti spadají</li><li>Když jsou dvě rodiny a jen jedno pojištění, může vzniknout problém s plněním.</li><li>✅ Proto se u dvougeneračních domů většinou dělá dvě domácnosti na jedné adrese.</li></ul></details><details class="card ins" data-s="pojišťovna slavia"><summary><h3 style="display:inline">Slavia</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Základy pojišťovny byly položeny již v roce 1868. Významný milník v životě pojišťovny představuje její vstup do silné finanční Skupiny SP Group, jejíž součástí se stala v dubnu 2006. Nový majitel Capital Management Company, a.s. - člen skupiny SP Group, je společnost s dlouholetým a velmi úspěšným fungováním na pojistném trhu v České republice.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Cena</li><li>Sleva 25% na budovy ve výstavbě</li><li>Pojištění staveb v ceně (do 200 000 Kč)</li><li>Pojištění věcí v autě na kole či od zaměstnavatele</li><li>Možnost slevy za propojištěnost  vyplníte číslo již existující klientovy smlouvy u Slavie. VZTAHUJE SE POUZE NA AKTIVNÍ SMLOUVY A NIKOLIV SMLOUVY, KTERÉ NEBUDOU AKTIVNÍ I DO BUDOUCNA</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Věci v garáži na jiné adrese</li><li>Věci na koleji</li><li>Věci na zahradě, na dvoře -  v případě vichřice musí být zahradní nábytek řádně ukotven, jinak pojišťovna nebude plnit!</li><li>Skleník včetně skla  (balíček JUBILEUM)</li><li>Hroby</li><li>Připojištění Talisman – kryje rizika, která kryje jiná pojišťovna, ale Slavia ne, pouze pokud nejde o výluku u Slavie. Klient musí doložit pojistné podmínky konkurenční pojišťovny. Limit plnění u NEM  max 5% z pojistné částky a u DOM max 10% z pojistné částky.</li><li>Rozšířené odpovědnosti dle balíčků (JISTOTA, JUBILEUM) - nově odpovědnost až do 40.000.000 Kč</li><li>Základní asistence - telefonická asistence, zprostředkování odchytu včelích rojů a likvidace vos a sršňů, asistence Jistota 7.000,- Kč/neomezeně - telefonická asistence a poradenství, zprostředkování odchytu včelích rojů a likvidace vos a sršňů, úhrada příjezdu technické pomoci a nákladů potřebných k odstranění havarijního stavu, oprava spotřebičů, IT konzultace po telefonu a vzdálené připojení technika, asistence Jubileum 10.000,- Kč/neomezeně - telefonická asistence a poradenství, zprostředkování odchytu včelích rojů a likvidace vos a sršňů, úhrada příjezdu technické pomoci a nákladů potřebných  k odstranění havarijního stavu, oprava spotřebičů, IT konzultace po telefonu a vzdálené připojení technika, právní konzultace po telefonu,  služby advokáta, názor druhého lékaře</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Základ</li><li>Jistota</li><li>Jubileum</li></ul><p class="grp" style="margin:14px 0 6px">Limity plnění</p><ul class="tl-say"><li>NEMOVITOST - 30.000.000,- Kč</li><li>DOMÁCNOST - 5.000.000,- Kč</li></ul><p class="grp" style="margin:14px 0 6px">Co nelze pojistit</p><ul class="tl-say"><li>U rozestavěné stavby nejde pojistit odpovědností pojistku ani pojištění domácnosti.</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba = 15 dnů od počátku pojištění</li><li>Trvale obývaná = min. 9 měsíců v roce (dle tabulky, ověřit ve VPP)</li><li>Automatická valorizace – NE</li><li>Pojištění pro případ působení pojistného nebezpečí vichřice, krupobití, povodeň a záplava se sjednává s čekací dobou v délce 10 dnů ode dne uzavření pojistné smlouvy!</li><li>*Možné pojistit budovu určenou k podnikání až do 50% užitné plochy.</li><li>*V roční splátce nejvýhodnější cena</li><li>*Pojištění ztráty vody do 100.000,- Kč DOM+NEM</li><li>*Technická porucha (Jubileum) 150.000,- Kč</li><li>*Pojištění kola mimo místo pojištění - krádež kola kdekoliv v ČR, musí být pevně uzamčeno + fotodokumentace místa,</li><li>nutné hlášení Policii ČR. Limit do 50.000,- Kč</li></ul></details><details class="card ins" data-s="pojišťovna čpp"><summary><h3 style="display:inline">ČPP</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Česká podnikatelská pojišťovna je součástí skupiny Vienna Insurance Group. Jde o předního specialistu na pojištění v Rakousku a ve střední a východní Evropě. Kolem 50 společností ve 25 zemích tvoří koncern s dlouhou tradicí, silnými značkami a velkou blízkostí klientům.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Někdy cena</li><li>Pojištění odpovědnosti - děti do 26 let - vlastní i nevlastní (partnerovo), příbuzné v přímé linii  nebo v domácnosti vypomáhající</li><li>Vlastnictví a používání zbraní</li><li>Pojištění kola v celé ČR (dle vybraného balíčku - 20tis./50tis./100tis. v místě pojištění/na kusy, 5tis./50tis./100tis. kdekoliv v ČR/pojistný rok)</li><li>Pojistíme také škodu způsobenou hlodavcem (okus kuny) pod střechou</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Rozšířená asistence Domácnost plus (V jednom pojistném roce: 3x asistovaná událost - 15.000 Kč na jeden zásah)</li><li>Asistenční službu zajišťuje Global Assistance na lince 1220. Dostupnost 24/7</li><li>Náhrada újmy na mobilním telefonu, notebooku či tabletu</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Mini</li><li>Opti</li><li>Maxi</li></ul><p class="grp" style="margin:14px 0 6px">Limity plnění</p><ul class="tl-say"><li>NEMOVITOST - 30.000.000,-  Kč</li><li>DOMÁCNOST - 7.500.000,-  Kč</li><li>NEMOVITOST - 30.000.000,-  Kč</li><li>DOMÁCNOST - 7.500.000,-  Kč</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba = 30 dnů od sjednání pojištění</li><li>Trvale obývaná = využívaná k celoročnímu pobytu</li><li>Automatická valorizace – ANO</li><li>Pojištění povodně a záplavy se sjednává se spoluúčastí ve výši 1 % z celkové výše pojistného plnění,  min. však 10.000,-  Kč. Čekací doba pro povodeň/ záplava je 10 dní od uzavření smlouvy.</li><li>*Pojištění je poskytováno se vstupním bonusem ve výši 30%. Dojde-li k vyplacení pojistného plnění, sníží pojistitel</li><li>poskytovanou výši bonusu o 5% za každou pojistnou událost.</li><li>*Sleva 6% za roční frekvenci placení a 4% za pololetní.</li><li>*Sleva za propojištěnost až 10 % (DOM+NEM+ODP).</li><li>*Možné pojistit budovu určenou k podnikání až do 50% užitné plochy</li><li>Zrušením pojistné smlouvy u ČPP v průběhu roku (nikoliv výpověď 6 týdnů před výročím!), pojišťovna vždy zruší pouze pojištění DOM či NEM dle ukončení nájmu, ale odpovědnostní pojištění se mu vždy</li><li>zruší až k výročí!!!</li></ul></details><details class="card ins" data-s="pojišťovna uniqa"><summary><h3 style="display:inline">UNIQA</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>UNIQA pojišťovna, a.s. je univerzální pojišťovna sídlící v Praze. Je dceřinou společností rakouské pojišťovací skupiny UNIQA Insurance Group. Byla založena jako „Česko-rakouská pojišťovna“. Pojišťovací činnost zahájila 1. 7. 1993.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Žolík - v balíčku EXTRA</li><li>Kutil</li><li>Kombinace DOM+NEM</li><li>Revize nových spotřebičů v asistencích</li><li>Vedlejší stavby jsou automaticky pojištěný spolu s hlavní (10% z PČ MINI+PLUS/ 25% EXTRA), při vyšších hodnotách doporučeno pojistit zvlášť (u trvale obývané stavby)</li><li>Pojištění jízdního kola (Evropa) - LIMIT AŽ 55 000 Kč</li><li>Krádež mimo domov, loupež, odcizení z domu, sklepa, balkonu atd.</li><li>Pojištění odpovědnosti pronajímatele (škody třetím osobám i nájemci)</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Pojištění klíšťové encefalitidy</li><li>Pojištění úrazu “Kutil” (Pojištění se sjednává pro případ vzniku trvalých následků úrazu s celkovým hodnocením nad 10 %. Pojistnou událostí je úraz pojištěného, tj. např. neočekávané a náhlé poškození zdraví v důsledku působení vnějších sil nebo vlastní tělesné síly, vymknutí kloubu, přetržení nebo natržení svalů, šlach, vazů nebo pouzder, tělesná poškození způsobená popálením, opařením, působením úderu blesku, elektrickým proudem, plyny nebo parami, požitím jedovatých nebo leptavých látek, nákazu tetanem nebo vzteklinou při úrazu)</li><li>Meteo UNIQA - Služba je dostupná zdarma. Díky Meteo UNIQA získáte přesné varování před blížícími se extrémními výkyvy počasí</li><li>Rodinná právní asistence</li><li>Cyklo asistence</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Mini</li><li>Plus</li><li>Extra</li><li>Individual</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - 25.000.000,-  Kč</li><li>DOMÁCNOST - 5.000.000,-  Kč</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba - v den počátku pojištění</li><li>Trvale obývaná = min. 6 měsíců v roce</li><li>Automatická valorizace – ANO</li><li>Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění.</li><li>*Možné pojistit budovu určenou k podnikání až do 49% užitné plochy</li><li>*U DOM a NEM může být rozdílná spoluúčast.</li><li>ŽOLÍK STAVBA - (dorovnání nabídky konkurence), náklady na vyčištění studny, poškození porostů a zahradní architektury, havárie rozvodů vody, energií a odpadu, ztráta nájemného, navýšení limitu pro ostatní vedlejší stavby, navýšení limitu pro odklízecí a bourací náklady.</li><li>ŽOLÍK DOMÁCNOST - (dorovnání nabídky konkurence), poškození náhrobků a hřbitovních pomníků, náklady na ošetření domácího mazlíčka (úraz), navýšení limitu pro odklízecí a bourací náklady.</li></ul></details><details class="card ins" data-s="pojišťovna allianz"><summary><h3 style="display:inline">Allianz</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Allianz pojišťovna, a.s. je součástí koncernu Allianz Group, založeného v roce 1890. Skupina sídlí v německém Mnichově, celosvětově zaměstnává zhruba 140 tisíc zaměstnanců a působí ve více než 70 zemích. Pojišťuje soukromé osoby, firmy i podnikatele. Česká Allianz pojišťovna vznikla v roce 1993.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Odpovědnost z občanského života v ceně - vztahuje se na členy domácnosti a hospodářská zvířata</li><li>Odpovědnost v rámci celé Evropy</li><li>Balíčky jsou jasné</li><li>Mobilheimy</li><li>Věrnostní sleva (3x7%)</li><li>Povodně a záplavy v každém balíčku</li><li>Možnost měsíční platby</li><li>Proplácí předměty v nové ceně</li><li>Garáž do 500 m v ceně</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Věci mimo domov (věci v autě i střešní box, věci v ubytovacím zařízení (hotel, šatna v divadle, čekárna u lékaře…)</li><li>Zahrada (věci a porosty)</li><li>Zemětřesení (Toto dobrovolné připojištění kryje škody na pojištěném majetku způsobenými zemětřesením (otřesy zemského povrchu vyvolané geofyzikálními procesy v zemském nitru.). Musí se předložit důkaz o tom, že zemětřesení dosáhlo v místě pojištění minimálně 6. stupně makroseismické stupnice EMS 98, popř. 5. stupně Richterovy stupnice.)</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Komfort</li><li>Extra</li><li>Max</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - INDIVIDUÁLNÍ (zabezpečení!)</li><li>DOMÁCNOST - INDIVIDUÁLNÍ (zabezpečení!)</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba -15 dnů od počátku pojištění</li><li>Trvale obývaná = min. 6 měsíců v roce</li><li>Automatická valorizace – ANO</li><li>Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění.</li><li>*Možné pojistit budovu určenou k podnikání až do 60% užitné plochy</li><li>*Může se hradit v měsíčních splátkách</li><li>POZOR!!!</li><li>U POJIŠTĚNÍ ZTRÁTY VODY NEHRADÍ ŠKODY V PŘÍPADĚ POJIŠTĚNÍ PŘECHODNĚ OBÝVANÉ BUDOVY</li></ul></details><details class="card ins" data-s="pojišťovna pillow"><summary><h3 style="display:inline">Pillow</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Pojišťovna Pillow je česká pojišťovna s licencí České národní banky k provozování neživotního pojištění.  Byla založena 15. července 2015 pod názvem První klubová pojišťovna, pilotní provoz spustila 21. září 2015 a ostrý provoz začal 22. března 2016.[1] K přejmenování na Pillow pojišťovnu došlo v roce 2019 a předcházela mu změna akcionářské struktury a statutárních orgánů dne 31. října 2019.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Výpověď i 14 dní před výročním dnem</li><li>Modulární pojištění - lze upravovat + Mobilheim (připevnění na zemních vrutech nebo betonových patkách)</li><li>Pojistí ateliér, studio (uveden jako byt - nenahlíží do katastru)</li><li>Strojní pojištění - allrisk na soláry</li><li>Umí AirBnB</li><li>Pojištění odpovědnosti až 50.000.000 Kč (dle tarifu ČR nebo celá Evropa), pro členy domácnosti, děti do 26 let studující, osoby pečující o domácnost a zvířata</li><li>Odpovědnost držení zbraně</li><li>Věci pronajaté či zapůjčené</li><li>Uhradí i zatečení vody přes mikroventilaci</li><li>Spoluúčast je vždy na pojistnou událost</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Ztráta nájmu - až 12 měsíců</li><li>Deratizace a dezinsekce</li><li>Oprava domácích spotřebičů a zdrojů tepla (v limitu 7.000,-  Kč za zásah / 2x ročně, včetně náhradních dílů: zajistí opravu spotřebiče a uhrazení práce opraváře, stejně tak drobný materiál vč. celých náhradních dílů, pokud byl zakoupený jako nový v ČR nejpozději před 5 lety (7 lety pro zdroje tepla), pokud závada brání jeho používání)</li><li>Skla a sanita – 100.000 Kč (limit lze nastavit až do pojistného limitu)</li><li>Pojištění věcí na zahradě</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Pojištění majetku</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - INDIVIDUÁLNÍ</li><li>DOMÁCNOST - INDIVIDUÁLNÍ</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba -7 dnů od počátku pojištění</li><li>Trvale obývaná = více než 9 měsíců v roce (ověřeno v podmínkách Pillow)</li><li>Automatická valorizace – ANO</li><li>Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění.</li><li>*Možné pojistit budovu určenou k podnikání až do 40 % užitné plochy</li><li>*Může se hradit v měsíčních splátkách</li><li>*Hotovost do 25.000 Kč</li><li>*Vybavení staveniště (krádež) do 100.000 Kč</li><li>*Věci zvláštní hodnoty a cennosti 50% z pojistné částky domácnosti</li><li>*Věci v nebytovém prostoru 20% z poj. domácnosti</li></ul></details><details class="card ins" data-s="pojišťovna pvzp"><summary><h3 style="display:inline">PVZP</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Pojišťovna VZP, a.s. (PVZP) je univerzální neživotní pojišťovna, dceřiná společnost Všeobecné zdravotní pojišťovny České republiky (VZP ČR). Od založení roku 1994 byla součástí VZP ČR, po vstupu Česka do Evropské unie v roce 2004 působí samostatně. V současnosti patří mezi nejrychleji rostoucí členy České asociace pojišťoven.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Cena</li><li>Nekomplikované balíčky</li><li>Neuplatňuje podpojištění - nekrátí plnění</li><li>Na povodeň 0% spoluúčast</li><li>Technická asistence (lze využít až na 5 zásahů ročně v celkové hodnotě až 10 tisíc)</li><li>Zvýhodňuje propojištěnost</li><li>Cennosti, věci zvláštní hodnoty a věci v nebytovém prostoru v ceně dle balíčku</li><li>Odpovědnost kryje i nájemníka pro sousedy (nezaplatí poškození věcí majitele)</li><li>Benefit (dorovnání pojistného plnění dle rozsahu jiného pojistitele v ČR, platí od 2. pojistného roku za předpokladu bezeškodního předchozího pojistného období, limit 50.000 Kč v balíčku Maxi, Standard limit 10.000,- Kč).</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Povodeň nebo záplava</li><li>Rozšířená odpovědnost na Svět</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Standard</li><li>Maxi</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST-25.000.000,- Kč</li><li>DOMÁCNOST - 8.000.000,- Kč</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba - 15 dnů od počátku pojištění</li><li>Trvale obývaná = cca 6 měsíců, 182–183 dnů v roce (ověřit ve VPP)</li><li>Automatická valorizace - ANO</li><li>*Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění</li><li>*Cennosti, věci zvláštní hodnoty a věci v nebytovém prostoru v balíčku Maxi 40% z PČ domácnosti</li><li>*Možné pojistit budovu určenou k podnikání až do 50 % užitné plochy</li><li>*V balíčku Standard – hrazeno v časové ceně, v balíčku Maxi v ceně nové</li></ul></details><details class="card ins" data-s="pojišťovna komerční pojišťovna"><summary><h3 style="display:inline">Komerční pojišťovna</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Komerční pojišťovna, a.s., (KB Pojišťovna) je univerzální pojišťovnou působící na českém trhu. Vznikla v roce 1995. Od roku 2001, kdy francouzská obchodní banka Société Générale vstoupila do Komerční banky, úzce spolupracuje se společnostmi náležejícími do skupiny KB, potažmo Société Générale. Do této skupiny dále náleží společnost ESSOX, Modrá pyramida stavební spořitelna, a.s., nebo Penzijní společnost Komerční banky, a.s.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>Nevadí zhodnocení stavby (fotovoltaika, tepelné čerpadlo apod.)</li><li>Úhrada celých splátek úvěru po dobu až 12 měsíců (pokud je poškození nemovitosti v rozsahu 20% hodnoty nemovitosti nebo větší)</li><li>Náhradní ubytování po dobu až 12 měsíců (nemovitost po pojistné události neobyvatelná)</li><li>Pojištění Odpovědnosti je bez spoluúčastí a bez limitů na elektroniku aj.</li><li>Odpovědnost na všechny členy žijící v domácnosti - věk není omezený</li><li>Odpovědnost se vztahuje i na domácí a hospodářská zvířata (není omezen počet)</li><li>Odpovědnost na všechny nemovitosti ve vlastnictví v ČR</li><li>Fotovoltaika je automaticky v hlavní stavbě, i když jí majitel pořídí později</li><li>Vše je pojištěno na novou cenu kromě ztráty vody</li><li>Pojistíme i družstevní podílové vlastnictví</li><li>Nemovitost nelze podpojistit</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Rozdílové pojištění GAP (Pokud máte v okamžiku sjednání pojištění obdobné pojištění u jiného pojistitele, můžete si k tomuto pojištění sjednat tzv. rozdílové pojištění, na základě kterého vám v případě pojistné události podle tohoto pojištění uhradí Komerční pojišťovna rozdíl, o který pojistné plnění ze sjednaného pojištění převyšuje pojistné plnění z vašeho původního pojištění. Tento rozdíl však uhradí pouze v případě, že vznikl v důsledku aplikace výluky nebo nižšího limitu jiným pojistitelem či proto, že dané pojistné nebezpečí v rámci původního pojištění nebylo pojištěno.)</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Klasik</li><li>Komfort</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - BEZ LIMITU</li><li>DOMÁCNOST - BEZ LIMITU</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba – 30 dnů od sjednání</li><li>Trvale obývaná = min. 9 měsíců v roce (dle tabulky, ověřit ve VPP)</li><li>Automatická valorizace – ANO</li><li>*Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění</li><li>*Pojišťuje se na plochu nemovitosti, ne hodnoty!</li><li>*Pokud se bydlí nad garáží , patří vždy k hlavní stavbě</li><li>*U podkroví beru jen vnitřní plochu (odpočítám 10% od plochy)</li><li>*Vedlejší stavby se uvádějí v m2, nemusí se vypisovat</li><li>*Možné pojistit budovu určenou k podnikání až do 50 % užitné plochy</li><li>*Možnost měsíční platby</li></ul></details><details class="card ins" data-s="pojišťovna generali česká pojišťovna"><summary><h3 style="display:inline">Generali Česká pojišťovna</h3></summary><p class="grp" style="margin:14px 0 6px">O pojišťovně</p><ul class="tl-say"><li>Generali Česká pojišťovna a.s. (dříve Česká pojišťovna a.s.) je univerzální pojišťovnou s dlouholetou tradicí v životním i neživotním pojištění. Významným mezníkem bylo znárodnění pojišťoven v roce 1948, které vedlo k vytvoření Československé pojišťovny. V roce 2019 měla tři miliony klientů, spravovala více než sedm milionů pojistných smluv a její tržní podíl na domácím trhu dosahoval 21,5 %.</li></ul><p class="grp" style="margin:14px 0 6px">Výhody</p><ul class="tl-say"><li>I starší věci v domácnosti proplatíme, jako by byly nové</li><li>Pojistíme zahradní techniku, sportovní vybavení, hudební nástroje i elektroniku</li><li>Nemusíte čekat, než svůj domov dostavíte. Pojistěte jej už při výstavbě</li><li>Vyzkoušejte novou mobilní aplikaci Moje Generali</li><li>Technická porucha – do 10 let - NOVÁ CENA do PČ, nad 10 let - ČASOVÁ CENA</li><li>Tržní cena - neuplatňuje podpojištění</li><li>RD –4 bytové jednotky</li><li>Estetické škody (stavební součásti) do 100.000,- Kč (poškození sám sobě - rám okna, nabouraná garážová vrata, nabobtnalá linka od vína. Úhrada materiálu...apod.</li><li>Přesjednání během roku u GČP - musí být navýšení víc než 10% z PČ (výpověď z důvodu náhrady přes BO)</li></ul><p class="grp" style="margin:14px 0 6px">Možnost připojištění</p><ul class="tl-say"><li>Sportovní potřeby - aktiv - pojistíme vybavení, které využíváte pro rekreační sporty, např. jízdní kola, lyžařské vybavení, golfové bagy, oděvy, boty, batohy, chytré hodinky, elektrokola, cyklonavigace a elektrokoloběžky, které nepodléhají povinnosti mít povinné ručení až do výše 100.000,- Kč.</li><li>Zahradní technika -  zahradní traktory, sekačky, kultivátory nebo sněžné frézy. Pojistíme ji proti krádeži, poškození či zničení až do limitu 100.000,- Kč.</li><li>Přenosná elektronika - počítač, tablet, mobil, fotoaparát nebo jinou přenosnou elektroniku pojištěnou i mimo domov. V případě poškození či zničení jste chráněni až do limitu 15.000,- Kč.</li><li>ODPOVĚDNOST - běžný občanský život a odpovědnost ze všech nemovitostí</li><li>Pojištění MAZLÍČEK (pes, kočka), léčebné výlohy až do 120.000,- Kč, stáří až do 10 let, možnost pojistit i nepapírová zvířata (3 balíčky START, STANDARD, EXCLUSIVE)</li></ul><p class="grp" style="margin:14px 0 6px">Balíčky</p><ul class="tl-say"><li>Start</li><li>Standard</li><li>Exclusive</li><li>All risk</li></ul><p class="grp" style="margin:14px 0 6px">Limity</p><ul class="tl-say"><li>NEMOVITOST - není pevně stanovena</li><li>DOMÁCNOST - není pevně stanovena</li><li>VEDLEJŠÍ STAVBY - 15%Z PČ, MAXIMÁLNĚ DO 5. MIL</li></ul><p class="grp" style="margin:14px 0 6px">Obecné informace</p><ul class="tl-say"><li>Platba - v den počátku pojištění (0 dní)</li><li>Trvale obývaná = min. 180 dnů v roce, méně = rekreační objekt</li><li>Automatická valorizace – ANO</li><li>*Nebytový prostor = není průchozí z domu!</li><li>*Možnost měsíční platby</li><li>*Možné pojistit budovu určenou k podnikání až do 50 % užitné plochy</li><li>*Karenční doba na povodeň/ záplavu je 10 dní od počátku pojištění</li></ul></details></div></div>
+
+
+    <!-- DOKUMENTY -->
+    <div id="tab-dokumenty" class="tab-page">
+      <h2>Dokumenty</h2>
+      <p class="sub">Soubory a odkazy. Excely a online dokumenty stačí přidat jako odkaz, otevřou se rovnou, bez stahování.</p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:20px; border-bottom:2px solid var(--line); padding-bottom:12px;">
+        <button type="button" class="tl-btn active-subtab" id="btn-sub-operator" onclick="switchDocSubtab('operator')">👨‍💻 Operátoři</button>
+        <button type="button" class="tl-btn" id="btn-sub-vedenie" onclick="switchDocSubtab('vedenie')">🔒 Vedení</button>
+        <button type="button" class="tl-btn hide" id="btn-doc-logout" style="margin-left:auto" onclick="logoutVedenie()">Odhlásit se</button>
+      </div>
+
+      <div id="doc-msg" class="hide" style="margin-bottom:14px;color:var(--bad);font-weight:600;"></div>
+      <input type="search" id="doc-search" class="doc-search" name="doc-hladanie" placeholder="🔎 Hledat v dokumentech…" autocomplete="off" oninput="onDocSearch()" data-notr>
+
+      <!-- Operátori: vidí každý -->
+      <div id="doc-subtab-operator">
+        <p class="grp">Dokumenty pro operátory</p>
+        <div id="doc-list-operator" class="grid"></div>
+      </div>
+
+      <!-- Vedenie: len po prihlásení -->
+      <div id="doc-subtab-vedenie" class="hide">
+        <form id="vedenie-login-box" class="calc-box dc" onsubmit="processVedenieLogin();return false;">
+          <p class="grp">Přihlášení pro Vedení</p>
+          <div class="calc-field">
+            <label for="v-email">E-mail</label>
+            <input type="email" id="v-email" name="username" placeholder="jmeno@klik.cz" autocomplete="username">
+          </div>
+          <div class="calc-field">
+            <label for="v-pass">Heslo</label>
+            <input type="password" id="v-pass" name="password" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn">Přihlásit se</button>
+        </form>
+
+        <div id="vedenie-upload-box" class="hide">
+          <div style="background:var(--pink-soft); padding:10px 16px; border-radius:12px; margin-bottom:15px;">
+            <span id="vedenie-user-badge" style="font-weight:700; color:var(--pink);"></span>
+          </div>
+
+          <p class="grp">Dokumenty jen pro vedení</p>
+          <div id="doc-list-vedenie" class="grid"></div>
+          <div style="margin-top:18px;">
+            <button type="button" class="btn" id="doc-add-toggle" onclick="toggleAddForm()">➕ Přidat dokument</button>
+          </div>
+          <div id="doc-add-form" class="calc-box dc hide" style="max-width:none; margin-top:16px;">
+            <p class="grp">Přidat dokument nebo odkaz</p>
+            <div class="dc-row">
+              <div class="calc-field">
+                <label for="doc-title">Název</label>
+                <input type="text" id="doc-title" placeholder="např. Tabulka výročí 2026" data-notr>
+              </div>
+              <div class="calc-field">
+                <label for="doc-kind">Co přidáváš</label>
+                <select id="doc-kind" onchange="onDocKindChange()">
+                  <option value="link">🔗 Odkaz (Excel online, Google Sheets, web…)</option>
+                  <option value="file">📄 Soubor z počítače</option>
+                </select>
+              </div>
+              <div class="calc-field">
+                <label for="doc-aud">Pro koho</label>
+                <select id="doc-aud">
+                  <option value="operator">Operátoři (vidí každý)</option>
+                  <option value="vedenie">Jen vedení (po přihlášení)</option>
+                </select>
+              </div>
+            </div>
+            <div class="calc-field" id="doc-url-wrap">
+              <label for="doc-url">Odkaz (URL)</label>
+              <input type="text" id="doc-url" placeholder="https://..." data-notr>
+            </div>
+            <div class="calc-field hide" id="doc-file-wrap">
+              <label for="doc-file">Soubor</label>
+              <input type="file" id="doc-file">
+            </div>
+            <button type="button" class="btn" id="doc-save-btn" onclick="uploadDocument()">Přidat</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
 
   </div>
 </main>
@@ -509,16 +602,16 @@ function switchTab(tabId) {
     page.classList.remove('active');
   });
 
-  var navLinks = document.querySelectorAll('nav a');
+  var navLinks = document.querySelectorAll('nav a, nav button');
   navLinks.forEach(function(link) {
-    link.classList.remove('active');
+    link.classList.remove('active');link.removeAttribute('aria-current');
   });
 
   var activePage = document.getElementById('tab-' + tabId);
   var activeNav = document.getElementById('nav-' + tabId);
 
   if (activePage) activePage.classList.add('active');
-  if (activeNav) activeNav.classList.add('active');
+  if (activeNav) {activeNav.classList.add('active');activeNav.setAttribute('aria-current','page');}
   document.querySelectorAll('.side button').forEach(function(b){ b.classList.remove('active'); });
   var activeSide = document.getElementById('side-' + tabId);
   if (activeSide) activeSide.classList.add('active');
@@ -583,22 +676,20 @@ function switchTab(tabId) {
 
 // Podpoistenie Calculator
 (function(){
-  var cType = document.getElementById('c-type');
-  var cArea = document.getElementById('c-area');
-  var cRes = document.getElementById('c-res');
-
+  var cType=document.getElementById('c-type'),cArea=document.getElementById('c-area'),cRes=document.getElementById('c-res'),
+      cRb=document.getElementById('c-rb'),cWrap=document.getElementById('c-rb-wrap'),cMkt=document.getElementById('c-mkt');
+  function f(n){return Math.round(n).toLocaleString('cs-CZ')+' Kč';}
   function recalc(){
-    var rate = parseFloat(cType.value) || 0;
-    var area = parseFloat(cArea.value) || 0;
-    var total = Math.round(rate * area);
-    cRes.textContent = total.toLocaleString('cs-CZ') + ' Kč';
+    var rate=parseFloat(cType.value)||0,area=parseFloat(cArea.value)||0,hh=rate<=10000,total,mkt='';
+    if(hh){total=rate*area;if(cWrap)cWrap.style.display='none';}
+    else{
+      var rb=parseFloat(cRb&&cRb.value)||0;total=rb*area;if(cWrap)cWrap.style.display='';
+      mkt='Tržní hodnota (jen informativně, nepoužívat jako pojistnou částku): ≈ '+f(rate*area)+'.';
+      if(rate>0&&rb>0&&rate<rb)mkt+=' Tržní cena je nižší než cena znovupostavení. Pojistná částka se i tak počítá z ceny znovupostavení.';
+    }
+    cRes.textContent=f(total);if(cMkt)cMkt.textContent=mkt;
   }
-
-  if(cType && cArea){
-    cType.addEventListener('change', recalc);
-    cArea.addEventListener('input', recalc);
-    recalc();
-  }
+  if(cType&&cArea){cType.addEventListener('change',recalc);cArea.addEventListener('input',recalc);if(cRb)cRb.addEventListener('input',recalc);recalc();}
 })();
 </script>
 <script>
@@ -744,7 +835,7 @@ function switchTab(tabId) {
   var q=document.getElementById('ins-q'); if(!q)return;
   var cards=[].slice.call(document.querySelectorAll('#tab-poistovne details.ins'));
   var chipsBox=document.getElementById('ins-chips'), sum=document.getElementById('ins-sum');
-  var CH=[['Měsíční platba',/měsíční platb|měsíčně/i],['Výpověď kdykoliv',/kdykoliv/i],['Jízdní kolo',/jízdní kol|elektrokol|e-kol/i],['Zahradní věci',/zahrad/i],['Ztráta nájmu',/ztrát\w* nájm/i],['Náhradní ubytování',/náhradní ubyt/i],['Splátky úvěru',/splátk\w* úvěru/i],['Elektronika',/elektro/i]];
+  var CH=[['Měsíční platba',/měsíční platb|měsíčně/i],['Výpověď kdykoliv',/kdykoliv/i],['Jízdní kolo',/jízdní kol|elektrokol|e-kol/i],['Zahradní věci',/zahrad/i],['Ztráta nájmu',/ztrát\w* nájm/i],['Náhradní ubytování',/náhradní ubyt/i],['Splátky úvěru',/splátk\w* úvěru/i],['Elektronika',/elektro/i],['FVE / fotovoltaika',/FVE|fotovolta|soláry/i],['Mobilheim',/mobilheim/i],['Airbnb / pronájem',/airbnb|pronajímatel/i],['Mazlíček',/mazlíč/i],['Cizinec bez RČ',/cizinc/i],['Rozestavěná stavba',/výstavb|rozestav/i],['Zbraně',/zbran/i],['Bez podpojištění',/podpojišt|podpojist/i],['Povodeň 0 % spoluúčast',/0\s?% spoluúčast/i],['Odpovědnost Evropa',/Evrop/i],['Asistence',/asistenc/i]];
   var on={};
   function norm(t){var o='',i;for(i=0;i<t.length;i++)o+=t.charAt(i).normalize('NFD').replace(/[\u0300-\u036f]/g,'');return o.toLowerCase();}
   function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -811,6 +902,276 @@ function switchTab(tabId) {
   }
   sync();
 })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// --- DOKUMENTY (Supabase: spoločné úložisko + prihlásenie vedenia) ---
+const SUPABASE_URL = 'https://eiaevatcnohzcwvrnjkk.supabase.co';
+const HUB_COUNTRY = 'cz';   // 'sk' alebo 'cz': každý hub má vlastné dokumenty
+const SUPABASE_KEY = 'sb_publishable_qweFe9nw3Mh-JbfBUHBy7w_KkKP-rmE';
+
+let sb = null, docSession = null, docsCache = [];
+const docById = {};
+
+function escH(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function fmtSize(n) {
+  if (!n) return '';
+  return n >= 1048576 ? (n / 1048576).toFixed(2) + ' MB' : (n / 1024).toFixed(1) + ' KB';
+}
+function docIcon(d) {
+  if (d.kind === 'link') return '🔗';
+  var f = (d.file_name || '').toLowerCase();
+  if (/\.(xlsx?|csv)$/.test(f)) return '📊';
+  if (/\.pdf$/.test(f)) return '📕';
+  if (/\.docx?$/.test(f)) return '📝';
+  return '📄';
+}
+function isViewable(d) {
+  var m = (d.mime || '').toLowerCase(), f = (d.file_name || '').toLowerCase();
+  return m === 'application/pdf' || m.indexOf('image/') === 0 || m === 'text/plain' || /\.(pdf|png|jpe?g|gif|webp|txt)$/.test(f);
+}
+function docsMsg(t) {
+  var el = document.getElementById('doc-msg');
+  if (!el) return;
+  el.textContent = t || '';
+  el.classList.toggle('hide', !t);
+}
+
+function docsInit() {
+  if (!window.supabase || !SUPABASE_KEY) {
+    docsMsg('Dokumenty ještě nejsou připojeny: do kódu je třeba vložit klíč ze Supabase (SUPABASE_KEY).');
+    return;
+  }
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  sb.auth.getSession().then(function(r) {
+    docSession = r.data.session;
+    authUI();
+    loadDocs();
+  });
+  sb.auth.onAuthStateChange(function(_e, s) {
+    docSession = s;
+    setTimeout(function() { authUI(); loadDocs(); }, 0);
+  });
+}
+
+function authUI() {
+  var logged = !!docSession;
+  document.getElementById('vedenie-login-box').classList.toggle('hide', logged);
+  document.getElementById('vedenie-upload-box').classList.toggle('hide', !logged);
+  document.getElementById('btn-doc-logout').classList.toggle('hide', !logged);
+  if (logged) document.getElementById('vedenie-user-badge').textContent = 'Přihlášen: ' + docSession.user.email;
+}
+
+function switchDocSubtab(type) {
+  var op = type === 'operator';
+  document.getElementById('btn-sub-operator').classList.toggle('active-subtab', op);
+  document.getElementById('btn-sub-vedenie').classList.toggle('active-subtab', !op);
+  document.getElementById('doc-subtab-operator').classList.toggle('hide', !op);
+  document.getElementById('doc-subtab-vedenie').classList.toggle('hide', op);
+  loadDocs();
+}
+
+function processVedenieLogin() {
+  if (!sb) { alert('Dokumenty nejsou připojeny.'); return; }
+  var email = document.getElementById('v-email').value.trim();
+  var pass = document.getElementById('v-pass').value;
+  sb.auth.signInWithPassword({ email: email, password: pass }).then(function(r) {
+    if (r.error) alert('Přihlášení selhalo: ' + r.error.message);
+    else document.getElementById('v-pass').value = '';
+  });
+}
+function logoutVedenie() {
+  if (!sb) return;
+  sb.auth.signOut().then(function() {
+    docSession = null;
+    docsCache = [];
+    authUI();
+    switchDocSubtab('operator');
+  });
+}
+
+function toggleAddForm(force) {
+  var f = document.getElementById('doc-add-form'), b = document.getElementById('doc-add-toggle');
+  if (!f) return;
+  var open = (typeof force === 'boolean') ? force : f.classList.contains('hide');
+  f.classList.toggle('hide', !open);
+  b.textContent = open ? '✖ Zavřít' : '➕ Přidat dokument';
+  if (open) f.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function onDocKindChange() {
+  var isLink = document.getElementById('doc-kind').value === 'link';
+  document.getElementById('doc-url-wrap').classList.toggle('hide', !isLink);
+  document.getElementById('doc-file-wrap').classList.toggle('hide', isLink);
+}
+
+function loadDocs() {
+  if (!sb) return;
+  sb.from('hub_documents').select('*').eq('country', HUB_COUNTRY).order('created_at', { ascending: false }).then(function(r) {
+    if (r.error) { docsMsg('Chyba při načítání dokumentů: ' + r.error.message); return; }
+    docsMsg('');
+    docsCache = r.data || [];
+    renderDocs();
+  });
+}
+
+function normTxt(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+function getPins(k) { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } }
+function setPins(k, a) { try { localStorage.setItem(k, JSON.stringify(a)); } catch (e) {} }
+function togglePin(k, id) {
+  var a = getPins(k), i = a.indexOf(id);
+  if (i > -1) a.splice(i, 1); else a.push(id);
+  setPins(k, a);
+}
+function copyToClip(text, btn) {
+  var done = function() {
+    if (!btn) return;
+    var o = btn.getAttribute('data-o') || btn.textContent;
+    btn.setAttribute('data-o', o);
+    btn.textContent = btn.classList.contains('tl-btn') ? 'Zkopírováno ✓' : '✓';
+    setTimeout(function() { btn.textContent = o; }, 1500);
+  };
+  var fb = function() {
+    var t = document.createElement('textarea');
+    t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    document.body.removeChild(t);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fb); else fb();
+}
+function docShareUrl(d) {
+  if (d.kind === 'link') return d.url;
+  if (d.audience === 'operator' && sb) return sb.storage.from('docs-operator').getPublicUrl(d.file_path).data.publicUrl;
+  return null;   // súbory pre vedenie majú len dočasný odkaz
+}
+function pinDoc(id) { togglePin('hub_pins_docs', id); renderDocs(); }
+function copyDocLink(id, btn) {
+  var d = docById[id], u = d && docShareUrl(d);
+  if (u) copyToClip(u, btn);
+}
+function onDocSearch() { renderDocs(); }
+
+function docCard(d, canDelete) {
+  docById[d.id] = d;
+  var pinned = getPins('hub_pins_docs').indexOf(d.id) > -1;
+  var meta = d.kind === 'link' ? 'Odkaz' : escH(d.file_name) + (d.file_size ? ' (' + fmtSize(d.file_size) + ')' : '');
+  var date = new Date(d.created_at).toLocaleDateString('cs-CZ');
+  var btns = '';
+  if (d.kind === 'link') {
+    btns += '<button type="button" class="tl-btn" onclick="openDoc(\'' + d.id + '\')">🔗 Otevřít</button>';
+  } else {
+    if (isViewable(d)) btns += '<button type="button" class="tl-btn" onclick="openDoc(\'' + d.id + '\')">👁 Otevřít</button>';
+    btns += '<button type="button" class="tl-btn" onclick="openDoc(\'' + d.id + '\', true)">💾 Stáhnout</button>';
+  }
+  if (docShareUrl(d)) btns += '<button type="button" class="tl-btn" onclick="copyDocLink(\'' + d.id + '\', this)">📋 Kopírovat odkaz</button>';
+  btns += '<button type="button" class="tl-btn" onclick="pinDoc(\'' + d.id + '\')">' + (pinned ? '★ Připnuto' : '☆ Připnout') + '</button>';
+  if (canDelete) btns += '<button type="button" class="tl-btn" style="background:rgba(192,57,43,0.15); color:var(--bad);" onclick="deleteDocument(\'' + d.id + '\')">🗑 Smazat</button>';
+  return '<div class="card"><h3 data-notr>' + (pinned ? '⭐ ' : '') + docIcon(d) + ' ' + escH(d.title) + '</h3>' +
+    '<p><small data-notr>' + meta + '</small></p>' +
+    '<p><small>Přidáno: ' + date + '</small></p>' +
+    '<div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">' + btns + '</div></div>';
+}
+
+function prepList(list) {
+  var q = normTxt((document.getElementById('doc-search') || {}).value || '').trim();
+  var pins = getPins('hub_pins_docs');
+  var out = list.filter(function(d) { return !q || normTxt(d.title).indexOf(q) > -1; });
+  var top = out.filter(function(d) { return pins.indexOf(d.id) > -1; });
+  var rest = out.filter(function(d) { return pins.indexOf(d.id) < 0; });
+  return top.concat(rest);
+}
+
+function renderDocs() {
+  var logged = !!docSession;
+  var searching = !!((document.getElementById('doc-search') || {}).value || '').trim();
+  var empty = '<div class="card" style="grid-column: 1/-1;"><p>' + (searching ? 'Nic se nenašlo.' : 'Zatím tu nic není.') + '</p></div>';
+  var op = prepList(docsCache.filter(function(d) { return d.audience === 'operator'; }));
+  var ved = prepList(docsCache.filter(function(d) { return d.audience === 'vedenie'; }));
+  var opEl = document.getElementById('doc-list-operator');
+  var vedEl = document.getElementById('doc-list-vedenie');
+  if (opEl) opEl.innerHTML = op.length ? op.map(function(d) { return docCard(d, logged); }).join('') : empty;
+  if (vedEl) vedEl.innerHTML = ved.length ? ved.map(function(d) { return docCard(d, true); }).join('') : empty;
+}
+
+async function getDocUrl(d, download) {
+  var bucket = 'docs-' + d.audience;
+  if (d.audience === 'operator') {
+    return sb.storage.from(bucket).getPublicUrl(d.file_path, download ? { download: d.file_name } : undefined).data.publicUrl;
+  }
+  var r = await sb.storage.from(bucket).createSignedUrl(d.file_path, 300, download ? { download: d.file_name } : undefined);
+  return r.error ? null : r.data.signedUrl;
+}
+
+function openDoc(id, download) {
+  var d = docById[id];
+  if (!d || !sb) return;
+  if (d.kind === 'link') { window.open(d.url, '_blank', 'noopener'); return; }
+  var w = download ? null : window.open('', '_blank');
+  getDocUrl(d, download).then(function(u) {
+    if (!u) { if (w) w.close(); alert('Soubor se nepodařilo otevřít.'); return; }
+    if (download) {
+      var a = document.createElement('a');
+      a.href = u; a.download = d.file_name;
+      document.body.appendChild(a); a.click(); a.remove();
+    } else if (w) { w.opener = null; w.location.href = u; }
+  });
+}
+
+async function uploadDocument() {
+  if (!sb || !docSession) { alert('Nejdřív se přihlas.'); return; }
+  var title = document.getElementById('doc-title').value.trim();
+  var kind = document.getElementById('doc-kind').value;
+  var aud = document.getElementById('doc-aud').value;
+  if (!title) { alert('Vlož název.'); return; }
+
+  var row = { country: HUB_COUNTRY, title: title, kind: kind, audience: aud, uploader: docSession.user.email };
+  var path = null, bucket = 'docs-' + aud;
+
+  if (kind === 'link') {
+    var u = document.getElementById('doc-url').value.trim();
+    if (!u) { alert('Vlož odkaz.'); return; }
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    row.url = u;
+  } else {
+    var fi = document.getElementById('doc-file');
+    if (!fi.files || !fi.files.length) { alert('Vyber soubor.'); return; }
+    var file = fi.files[0];
+    var safe = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9._-]+/g, '_');
+    path = Date.now() + '_' + safe;
+    var up = await sb.storage.from(bucket).upload(path, file, { contentType: file.type || 'application/octet-stream' });
+    if (up.error) { alert('Nahrávání selhalo: ' + up.error.message); return; }
+    row.file_path = path; row.file_name = file.name; row.file_size = file.size; row.mime = file.type || null;
+  }
+
+  var ins = await sb.from('hub_documents').insert(row);
+  if (ins.error) {
+    if (path) await sb.storage.from(bucket).remove([path]);
+    alert('Uložení selhalo: ' + ins.error.message);
+    return;
+  }
+  document.getElementById('doc-title').value = '';
+  document.getElementById('doc-url').value = '';
+  document.getElementById('doc-file').value = '';
+  toggleAddForm(false);
+  loadDocs();
+}
+
+async function deleteDocument(id) {
+  var d = docById[id];
+  if (!d || !sb || !docSession) return;
+  if (!confirm('Opravdu chceš smazat „' + d.title + '“?')) return;
+  if (d.kind === 'file' && d.file_path) await sb.storage.from('docs-' + d.audience).remove([d.file_path]);
+  var r = await sb.from('hub_documents').delete().eq('id', id);
+  if (r.error) alert('Mazání selhalo: ' + r.error.message);
+  loadDocs();
+}
+
+document.addEventListener('DOMContentLoaded', docsInit);
 </script>
 </body>
 </html>
